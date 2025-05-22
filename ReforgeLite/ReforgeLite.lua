@@ -1,5 +1,6 @@
 local addonName, addonTable = ...
 local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
+addonTable.MOP = select(4, GetBuildInfo()) >= 50000 and select(4, GetBuildInfo()) < 60000
 local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT
 local GetItemStats = C_Item.GetItemStats or GetItemStats
 
@@ -151,7 +152,7 @@ ReforgeLite.itemSlots = {
 local ignoredSlots = { [INVSLOT_TABARD] = true, [INVSLOT_BODY] = true }
 
 ReforgeLite.STATS = {
-  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9, CRITBLOCK = 1
+  SPIRIT = 1, DODGE = 2, PARRY = 3, HIT = 4, CRIT = 5, HASTE = 6, EXP = 7, MASTERY = 8, SPELLHIT = 9
 }
 
 local FIRE_SPIRIT = 4
@@ -249,46 +250,27 @@ local itemStatsLocale = {
 ReforgeLite.tankingStats = {
   ["DEATHKNIGHT"] = DeepCopy (ReforgeLite.itemStats),
   ["WARRIOR"] = {
-    [ReforgeLite.STATS.CRITBLOCK] = {
-      tip = L["Crit block"],
-      long = L["Crit block"],
-      percent = true,
-      mgetter = function (method)
-        return method.stats.critBlock or 0
-      end,
-      getter = function ()
-        return GetMastery () * 1.5
-      end
-    },
-    [ReforgeLite.STATS.DODGE] = {
-      tip = STAT_DODGE,
-      long = DODGE_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.dodge or 0
-      end,
-      getter = GetDodgeChance
-    },
-    [ReforgeLite.STATS.PARRY] = {
-      tip = PARRY,
-      long = PARRY_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.parry or 0
-      end,
-      getter = GetParryChance
-    },
-    [ReforgeLite.STATS.MASTERY] = {
-      tip = BLOCK,
-      long = BLOCK_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.block or 0
-      end,
-      getter = function ()
-        return 20 + GetMastery () * 1.5
-      end
-    }
+	[ReforgeLite.STATS.DODGE] = {
+		tip = STAT_DODGE,
+		long = DODGE_CHANCE,
+		percent = true,
+		mgetter = function(method) return method.stats.dodge or 0 end,
+		getter = GetDodgeChance
+	},
+	[ReforgeLite.STATS.PARRY] = {
+		tip = PARRY,
+		long = PARRY_CHANCE,
+		percent = true,
+		mgetter = function(method) return method.stats.parry or 0 end,
+		getter = GetParryChance
+	},
+	[ReforgeLite.STATS.MASTERY] = {
+		tip = BLOCK,
+		long = BLOCK_CHANCE,
+		percent = true,
+		mgetter = function(method) return method.stats.block or 0 end,
+		getter = function() return 20 + GetMastery() * 1.5 end
+	}
   },
   ["PALADIN"] = {
     [ReforgeLite.STATS.DODGE] = {
@@ -337,6 +319,29 @@ ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].getter = GetPar
 
 ReforgeLite.tankingStats["DRUID"] = ReforgeLite.tankingStats["DEATHKNIGHT"]
 
+ReforgeLite.tankingStats["MONK"] = {
+  [ReforgeLite.STATS.DODGE] = {
+    tip = DODGE,
+    long = DODGE_CHANCE,
+    percent = true,
+    mgetter = function(method)
+      return method.stats.dodge or 0
+    end,
+    getter = GetDodgeChance
+  },
+  [ReforgeLite.STATS.MASTERY] = {
+    tip = STAT_MASTERY,
+    long = L["Stagger"],
+    percent = true,
+    mgetter = function(method)
+      return method.stats.mastery or 0
+    end,
+    getter = function()
+      return GetMastery() * 1.5 
+    end
+  }
+}
+
 ReforgeLite.REFORGE_TABLE_BASE = 112
 local reforgeTable = {}
 do
@@ -372,14 +377,37 @@ function ReforgeLite:GetCapScore (cap, value)
   return score
 end
 
-function ReforgeLite:GetStatScore (stat, value)
+-- Update GetStatScore to handle dual-wield and spell hit
+function ReforgeLite:GetStatScore(stat, value)
   if self.pdb.tankingModel then
     return self.pdb.weights[stat] * value
   end
-  if stat == self.pdb.caps[1].stat then
-    return self:GetCapScore (self.pdb.caps[1], value)
+  local isDualWield = false
+  if playerClass == "MONK" and GetSpecializationInfo(GetSpecialization()) == 269 then -- Windwalker
+    isDualWield = true
+  elseif playerClass == "ROGUE" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
+    local mainHand, offHand = GetInventoryItemLink("player", 16), GetInventoryItemLink("player", 17)
+    if mainHand and offHand then
+      isDualWield = true
+    end
+  end
+  if stat == self.STATS.HIT and isDualWield then
+    local dualWieldCap = 26.5 * self:RatingPerPoint(self.STATS.HIT) -- 26.5% for dual-wield
+    if value <= dualWieldCap then
+      return self:GetCapScore({ stat = self.STATS.HIT, points = {{ method = addonTable.StatCapMethods.AtMost, value = dualWieldCap, after = 10 }}}, value)
+    else
+      return self:GetCapScore({ stat = self.STATS.HIT, points = {{ method = addonTable.StatCapMethods.AtMost, value = dualWieldCap, after = 10 }}}, dualWieldCap) +
+             self.pdb.weights[stat] * (value - dualWieldCap)
+    end
+  elseif stat == self.STATS.SPELLHIT then
+    local spellHitCap = 15 * self:RatingPerPoint(self.STATS.SPELLHIT) -- 15% spell hit
+    local spiritContribution = self.itemStats[self.STATS.SPIRIT].getter() * (self.s2hFactor / 100)
+    value = value + spiritContribution
+    return self:GetCapScore({ stat = self.STATS.SPELLHIT, points = {{ method = addonTable.StatCapMethods.AtMost, value = spellHitCap, after = 0 }}}, value)
+  elseif stat == self.pdb.caps[1].stat then
+    return self:GetCapScore(self.pdb.caps[1], value)
   elseif stat == self.pdb.caps[2].stat then
-    return self:GetCapScore (self.pdb.caps[2], value)
+    return self:GetCapScore(self.pdb.caps[2], value)
   else
     return self.pdb.weights[stat] * value
   end
@@ -1240,6 +1268,7 @@ function ReforgeLite:UpdateBuffs ()
     end
   end
 end
+
 function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory = self:CreateCategory (L["Stat Weights"])
   self:SetAnchor (self.statWeightsCategory, "TOPLEFT", self.content, "TOPLEFT", 2, -2)
@@ -1321,29 +1350,47 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame(self.buffsContextMenu)
   self:SetAnchor(self.buffsContextMenu, "TOPLEFT", self.targetLevel, "TOPRIGHT", 0 , 5)
 
-  self.buffsContextMenu:SetupMenu(function(dropdown, rootDescription)
-    local function IsSelected(value)
-        return self.pdb[value]
-    end
-    local function SetSelected(value)
-        self.pdb[value] = not self.pdb[value]
-        for capIndex, cap in ipairs(self.pdb.caps) do
-          for pointIndex, point in ipairs(cap.points) do
-            local oldValue = point.value
-            self:UpdateCapPreset(capIndex, pointIndex)
-            if oldValue ~= point.value then
-              self:ReorderCapPoint (capIndex, pointIndex)
-            end
+	self.buffsContextMenu:SetupMenu(function(dropdown, rootDescription)
+  local function IsSelected(value)
+      return self.pdb[value]
+  end
+  local function SetSelected(value)
+      self.pdb[value] = not self.pdb[value]
+      for capIndex, cap in ipairs(self.pdb.caps) do
+        for pointIndex, point in ipairs(cap.points) do
+          local oldValue = point.value
+          self:UpdateCapPreset(capIndex, pointIndex)
+          if oldValue ~= point.value then
+            self:ReorderCapPoint(capIndex, pointIndex)
           end
         end
+      end
+      self:RefreshMethodStats()
+  end
+  local function GetBuffMenuItem(spellId, iconId, key, nameOverride)
+    local spellName = nameOverride or (spellId and C_Spell.GetSpellName(spellId)) or "Unknown"
+    if spellName ~= "Unknown" then
+      return { text = CreateSimpleTextureMarkup(iconId, 20, 20) .. " " .. spellName, key = key }
+    else
+      print("|cff33ff99ReforgeLite|r: Skipping invalid buff with spellId:", spellId or "none", "key:", key)
+      return nil
     end
-    local buffsContextValues = {
-      { text = CreateSimpleTextureMarkup(463285, 20, 20) .. " " .. C_Spell.GetSpellName(80398), key = "darkIntent"},
-      { text = CreateSimpleTextureMarkup(136092, 20, 20) .. " " .. L["Spell Haste"], key = "spellHaste"},
-      { text = CreateSimpleTextureMarkup(236181, 20, 20) .. " " .. L["Melee Haste"], key = "meleeHaste"}
-    }
-    for _, box in ipairs(buffsContextValues) do
-        rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, box.key)
+  end
+
+  local buffsContextValues = {
+    GetBuffMenuItem(109773, 463285, "darkIntent"), -- Dark Intent (updated ID)
+    GetBuffMenuItem(nil, 136092, "spellHaste", L["Spell Haste"]), -- Spell Haste
+    GetBuffMenuItem(nil, 236181, "meleeHaste", L["Melee Haste"]), -- Melee Haste
+    GetBuffMenuItem(20217, 132484, "kings"), -- Blessing of Kings
+    GetBuffMenuItem(57330, 136225, "hornOfWinter"), -- Horn of Winter
+    GetBuffMenuItem(115069, 608951, "sturdyOx"), -- Stance of the Sturdy Ox (Monk)
+    GetBuffMenuItem(115921, 608952, "legacyEmperor"), -- Legacy of the Emperor (Monk)
+    GetBuffMenuItem(115203, 608953, "fortifyingBrew"), -- Fortifying Brew (Monk)
+  }
+  buffsContextValues = tFilter(buffsContextValues, function(item) return item ~= nil end, true)
+
+  for _, box in ipairs(buffsContextValues) do
+    rootDescription:CreateCheckbox(box.text, IsSelected, SetSelected, box.key)
     end
   end)
 
@@ -1532,6 +1579,7 @@ function ReforgeLite:CreateOptionList ()
     ReforgeLite:UpdateMethodCategory ()
   end
 end
+
 function ReforgeLite:GetFrameOrder()
   if self.methodWindow and self.methodWindow:IsShown() and self.methodWindow:GetFrameLevel () > self:GetFrameLevel() then
     return self.methodWindow, self
@@ -1600,41 +1648,42 @@ function ReforgeLite:FillSettings()
 --@end-debug@]===]
 end
 
-function ReforgeLite:GetCurrentScore ()
+function ReforgeLite:GetCurrentScore()
   local score = 0
-  local unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
+  local unhit = 100 + 0.8 * max(0, self.pdb.targetLevel)
   if self.pdb.tankingModel then
-    local dodge = GetDodgeChance ()
-    local parry = GetParryChance ()
+    local dodge = GetDodgeChance()
+    local parry = GetParryChance()
     score = dodge * self.pdb.weights[self.STATS.DODGE] + parry * self.pdb.weights[self.STATS.PARRY]
     if playerClass == "WARRIOR" then
-      local mastery = GetMastery ()
+      local mastery = GetMastery()
       local block = 20 + mastery * 1.5
       if missChance + dodge + parry + block > unhit then
-        block = unhit - missChance - dodge - parry - block
+        block = unhit - missChance - dodge - parry
       end
-      score = score + block * self.pdb.weights[self.STATS.MASTERY] + (mastery * 1.5) * self.pdb.weights[self.STATS.CRITBLOCK]
+      score = score + block * self.pdb.weights[self.STATS.MASTERY]
     elseif playerClass == "PALADIN" then
-      local mastery = GetMastery ()
+      local mastery = GetMastery()
       local block = 5 + mastery * 2.25
       if missChance + dodge + parry + block > unhit then
-        block = unhit - missChance - dodge - parry - block
+        block = unhit - missChance - dodge - parry
       end
       score = score + block * self.pdb.weights[self.STATS.MASTERY]
     else
       for i = 1, #self.itemStats do
         if i ~= self.STATS.DODGE and i ~= self.STATS.PARRY then
-          score = score + self:GetStatScore (i, self.itemStats[i].getter ())
+          score = score + self:GetStatScore(i, self.itemStats[i].getter())
         end
       end
     end
   else
     for i = 1, #self.itemStats do
-      score = score + self:GetStatScore (i, self.itemStats[i].getter ())
+      score = score + self:GetStatScore(i, self.itemStats[i].getter())
     end
   end
   return RoundToSignificantDigits(score, 2)
 end
+
 function ReforgeLite:UpdateMethodCategory()
   if self.methodCategory == nil then
     self.methodCategory = self:CreateCategory (L["Result"])
@@ -1941,19 +1990,25 @@ function ReforgeLite:UpdateItems()
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
 
   self.s2hFactor = 0
+  local specID = GetSpecializationInfo(GetSpecialization())
   if playerClass == "PRIEST" then
-    if IsSpellKnown("47573") then
-      self.s2hFactor = 100
+    if specID == 256 or specID == 257 then -- Discipline or Holy
+      self.s2hFactor = 60 -- ~60% Spirit-to-Hit
     end
   elseif playerClass == "DRUID" then
-    if IsSpellKnown("33596") then
-      self.s2hFactor = 100
+    if specID == 105 then -- Restoration
+      self.s2hFactor = 60
     end
   elseif playerClass == "SHAMAN" then
-    if IsSpellKnown("30674") then
-      self.s2hFactor = 100
+    if specID == 264 then -- Restoration
+      self.s2hFactor = 60
+    end
+  elseif playerClass == "MONK" then
+    if specID == 270 then -- Mistweaver
+      self.s2hFactor = 60
     end
   end
+  print("|cff33ff99ReforgeLite|r: Spirit-to-Hit factor for", playerClass, "spec", specID, "set to", self.s2hFactor)
   if self.s2hFactor > 0 then
     self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. PERCENTAGE_STRING:format(self.s2hFactor))
     self.convertSpirit.text:Show ()
@@ -2462,7 +2517,7 @@ function ReforgeLite:ADDON_LOADED (addon)
   self.db = db.global
   self.pdb = db.char
   self.cdb = db.class
-
+  
   while #self.pdb.caps > #DefaultDB.char.caps do
     tremove(self.pdb.caps)
   end
