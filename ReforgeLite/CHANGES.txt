@@ -1,0 +1,50 @@
+tag 6b8a572490e28d6a7a7cf3e674028e71f27e2446 v1.9.11
+Author:	skyler-code <skylerh15@github.com>
+Date:	Sun Apr 6 02:17:23 2025 -0500
+
+commit 943f8138b9416fc5480f9a253ca87e7974aad02e
+Author: skyler-code <skylerh15@github.com>
+Date:   Sun Apr 6 02:16:24 2025 -0500
+
+    Spec Profiles
+
+commit 8c1bbc678687a7078552fb07919fb22ad8a6b6e8
+Author: skyler-code <skylerh15@github.com>
+Date:   Thu Mar 6 01:43:13 2025 -0600
+
+    rsham breakpoints
+
+commit 24cc430c3a23e9e0d315e9c6c8a51052c09b7d64
+Author: skyler-code <skylerh15@github.com>
+Date:   Sun Mar 2 14:51:37 2025 -0600
+
+    Revert "moved spiritBonus to addonTable"
+    
+    This reverts commit 033174ff916f02b2d5933c1fc41bb845d0bfe705.
+
+commit ab5f004c970e41ddee2b19b717bbfd0f222835e6
+Author: skyler-code <skylerh15@github.com>
+Date:   Sun Mar 2 13:57:49 2025 -0600
+
+    Revert "moved wowsims import button"
+    
+    This reverts commit 6a9a065723d44cab500a7f780f10bb1a6f881b0b.
+
+commit 033174ff916f02b2d5933c1fc41bb845d0bfe705
+Author: skyler-code <skylerh15@github.com>
+Date:   Sat Mar 1 16:51:34 2025 -0600
+
+    moved spiritBonus to addonTable
+
+commit 9cd4b35099e58854d31d6bfecb0aaaf6f8b9a4bb
+Author: skyler-code <skylerh15@github.com>
+Date:   Sat Mar 1 16:44:44 2025 -0600
+
+    cleanup
+
+commit 6a9a065723d44cab500a7f780f10bb1a6f881b0b
+Author: skyler-code <skylerh15@github.com>
+Date:   Fri Feb 28 16:24:32 2025 -0600
+
+    moved wowsims import button
+
