@@ -183,7 +183,7 @@ function ReforgeLite:GetExpertiseBonus ()
 end
 function ReforgeLite:GetNeededMeleeHit ()
   local diff = self.pdb.targetLevel
-  if MOP then
+  if addonTable.MOP then
     return math.max(0, 3 + 1.5 * diff)
   else
     if diff <= 2 then
@@ -203,7 +203,7 @@ function ReforgeLite:GetNeededSpellHit ()
 end
 function ReforgeLite:GetNeededExpertiseSoft ()
   local diff = self.pdb.targetLevel
-  if MOP then
+  if addonTable.MOP then
     return math.max(0, 3 + 1.5 * diff)
   else
     return math.ceil (math.max (0, 5 + 0.5 * diff) / 0.25)
@@ -211,7 +211,7 @@ function ReforgeLite:GetNeededExpertiseSoft ()
 end
 function ReforgeLite:GetNeededExpertiseHard ()
   local diff = self.pdb.targetLevel
-  if MOP then
+  if addonTable.MOP then
     return math.max(0, 6 + 3 * diff)
   else
     if diff <= 2 then
@@ -223,6 +223,10 @@ function ReforgeLite:GetNeededExpertiseHard ()
 end
 
 local function CreateIconMarkup(icon)
+  if not icon then
+    print("|cff33ff99ReforgeLite|r: Missing icon in CreateIconMarkup")
+    icon = 134400 -- Default question mark icon
+  end
   return CreateSimpleTextureMarkup(icon, 16, 16) .. " "
 end
 
@@ -426,6 +430,19 @@ do
       name = nameFormatWithTicks:format(CreateIconMarkup(252995), 21.44, 2, C_Spell.GetSpellName(61295)),
       getter = GetSpellHasteRequired(21.4345),
     })
+  elseif addonTable.playerClass == "MONK" then
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(620831), 12.51, 1, C_Spell.GetSpellName(115151)), -- Renewing Mist
+      getter = GetSpellHasteRequired(12.51),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(620831), 25.02, 2, C_Spell.GetSpellName(115151)), -- Renewing Mist
+      getter = GetSpellHasteRequired(25.02),
+    })
   end
 end
 ----------------------------------------- WEIGHT PRESETS ------------------------------
@@ -523,15 +540,30 @@ do
       arms = 746,
       fury = 815,
       protection = 845
+    },
+    monk = {
+    brewmaster = 268,
+    mistweaver = 270,
+    windwalker = 269
     }
-  }
+}
 
-  for _,ids in pairs(specs) do
-    for _, id in pairs(ids) do
-      local _, tabName, _, icon = GetSpecializationInfoForSpecID(id)
-      specInfo[id] = { name = tabName, icon = icon }
-    end
-  end
+	for _,ids in pairs(specs) do
+		for _, id in pairs(ids) do
+			local _, tabName, _, icon = GetSpecializationInfoForSpecID(id)
+			specInfo[id] = { name = tabName, icon = icon }
+		end
+	end
+
+specInfo[268] = specInfo[268] or {}
+specInfo[268].name = specInfo[268].name or "Brewmaster"
+specInfo[268].icon = specInfo[268].icon or 608951 -- Keg Smash
+specInfo[269] = specInfo[269] or {}
+specInfo[269].name = specInfo[269].name or "Windwalker"
+specInfo[269].icon = specInfo[269].icon or 608953 -- Fists of Fury
+specInfo[270] = specInfo[270] or {}
+specInfo[270].name = specInfo[270].name or "Mistweaver"
+specInfo[270].icon = specInfo[270].icon or 608952
 
   local presets = {
     ["DEATHKNIGHT"] = {
@@ -1083,6 +1115,100 @@ do
         },
       },
     },
+	["MONK"] = {
+    [specs.monk.brewmaster] = {
+      [RAID] = {
+        tanking = true,
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          110, -- Dodge
+          0,   -- Parry
+          150, -- Hit
+          50,  -- Crit
+          80,  -- Haste
+          120, -- Expertise
+          200  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.MeleeHitCap,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        tanking = true,
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          120, -- Dodge
+          0,   -- Parry
+          100, -- Hit
+          40,  -- Crit
+          60,  -- Haste
+          100, -- Expertise
+          180  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+    },
+    [specs.monk.mistweaver] = {
+      [MANA_REGEN_ABBR] = {
+        weights = {
+          150, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          100, -- Crit
+          120, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [BONUS_HEALING] = {
+        weights = {
+          130, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          110, -- Crit
+          140, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+    [specs.monk.windwalker] = {
+      weights = {
+        0,   -- Spirit
+        0,   -- Dodge
+        0,   -- Parry
+        200, -- Hit
+        140, -- Crit
+        120, -- Haste
+        180, -- Expertise
+        100  -- Mastery
+      },
+      caps = MeleeCaps,
+    },
+  },
   }
   --@non-debug@
   ReforgeLite.presets = presets[addonTable.playerClass]
