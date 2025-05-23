@@ -383,8 +383,31 @@ function ReforgeLite:GetStatScore(stat, value)
     return self.pdb.weights[stat] * value
   end
   local isDualWield = false
-  if playerClass == "MONK" and GetSpecializationInfo(GetSpecialization()) == 269 then -- Windwalker
-    isDualWield = true
+  if playerClass == "MONK" then
+    local isDualWield = false
+    if GetSpecialization and GetSpecializationInfo then
+      local specID = GetSpecializationInfo(GetSpecialization())
+      if specID == 269 then -- Windwalker
+        isDualWield = true
+      end
+    else
+    -- Fallback: Check for dual-wield weapons (Windwalker) or specific abilities
+      local mainHand, offHand = GetInventoryItemLink("player", 16), GetInventoryItemLink("player", 17)
+      if mainHand and offHand then
+    -- Ensure offHand is a weapon, not an off-hand item (e.g., frill for Mistweaver)
+        local _, _, _, _, _, _, _, _, offHandType = GetItemInfo(offHand)
+        if offHandType == "Weapon" then
+          isDualWield = true -- Likely Windwalker
+        end
+      end
+    -- Optional: Confirm with ability check (Tiger Palm is Windwalker-specific)
+      if IsSpellKnown(100780) then -- Tiger Palm
+        local mainHand, offHand = GetInventoryItemLink("player", 16), GetInventoryItemLink("player", 17)
+        if mainHand and offHand and offHandType == "Weapon" then
+          isDualWield = true
+        end
+      end
+    end
   elseif playerClass == "ROGUE" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
     local mainHand, offHand = GetInventoryItemLink("player", 16), GetInventoryItemLink("player", 17)
     if mainHand and offHand then
@@ -1989,23 +2012,44 @@ function ReforgeLite:UpdateItems()
 
   self.itemLevel:SetText (STAT_AVERAGE_ITEM_LEVEL .. ": " .. floor(select(2,GetAverageItemLevel())))
 
-  self.s2hFactor = 0
-  local specID = GetSpecializationInfo(GetSpecialization())
-  if playerClass == "PRIEST" then
-    if specID == 256 or specID == 257 then -- Discipline or Holy
-      self.s2hFactor = 60 -- ~60% Spirit-to-Hit
+self.s2hFactor = 0
+  if GetSpecialization and GetSpecializationInfo then
+    local specID = GetSpecializationInfo(GetSpecialization())
+    if playerClass == "PRIEST" then
+      if specID == 256 or specID == 257 then -- Discipline or Holy
+        self.s2hFactor = 60
+      end
+    elseif playerClass == "DRUID" then
+      if specID == 105 then -- Restoration
+        self.s2hFactor = 60
+      end
+    elseif playerClass == "SHAMAN" then
+      if specID == 264 then -- Restoration
+        self.s2hFactor = 60
+      end
+    elseif playerClass == "MONK" then
+      if specID == 270 then -- Mistweaver
+        self.s2hFactor = 60
+      end
     end
-  elseif playerClass == "DRUID" then
-    if specID == 105 then -- Restoration
-      self.s2hFactor = 60
-    end
-  elseif playerClass == "SHAMAN" then
-    if specID == 264 then -- Restoration
-      self.s2hFactor = 60
-    end
-  elseif playerClass == "MONK" then
-    if specID == 270 then -- Mistweaver
-      self.s2hFactor = 60
+  else
+  -- Fallback: Use ability checks for healer specs
+    if playerClass == "PRIEST" then
+      if IsSpellKnown(2060) or IsSpellKnown(2061) then -- Heal or Flash Heal
+        self.s2hFactor = 60
+      end
+    elseif playerClass == "DRUID" then
+      if IsSpellKnown(5185) then -- Healing Touch
+        self.s2hFactor = 60
+      end
+    elseif playerClass == "SHAMAN" then
+      if IsSpellKnown(8004) then -- Healing Surge
+        self.s2hFactor = 60
+      end
+    elseif playerClass == "MONK" then
+      if IsSpellKnown(115151) then -- Renewing Mist (Mistweaver)
+        self.s2hFactor = 60
+      end
     end
   end
   print("|cff33ff99ReforgeLite|r: Spirit-to-Hit factor for", playerClass, "spec", specID, "set to", self.s2hFactor)
