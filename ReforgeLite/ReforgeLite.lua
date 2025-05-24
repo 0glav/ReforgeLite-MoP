@@ -3,6 +3,7 @@ local addonTitle = C_AddOns.GetAddOnMetadata(addonName, "title")
 addonTable.MOP = select(4, GetBuildInfo()) >= 50000 and select(4, GetBuildInfo()) < 60000
 local CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT = CreateColor, WHITE_FONT_COLOR, ITEM_MOD_SPIRIT_SHORT
 local GetItemStats = C_Item.GetItemStats or GetItemStats
+local GetItemInfo = C_Item.GetItemInfo or GetItemInfo
 
 local ReforgeLite = CreateFrame("Frame", addonName, UIParent, "BackdropTemplate")
 addonTable.ReforgeLite = ReforgeLite
@@ -44,7 +45,6 @@ local DefaultDB = {
     targetLevel = 3,
     meleeHaste = true,
     spellHaste = true,
-    darkIntent = false,
     buffs = {},
     weights = {0, 0, 0, 0, 0, 0, 0, 0},
     caps = {
@@ -1401,14 +1401,8 @@ function ReforgeLite:CreateOptionList ()
   end
 
   local buffsContextValues = {
-    GetBuffMenuItem(109773, 463285, "darkIntent"), -- Dark Intent (updated ID)
-    GetBuffMenuItem(nil, 136092, "spellHaste", L["Spell Haste"]), -- Spell Haste
-    GetBuffMenuItem(nil, 236181, "meleeHaste", L["Melee Haste"]), -- Melee Haste
-    GetBuffMenuItem(20217, 132484, "kings"), -- Blessing of Kings
-    GetBuffMenuItem(57330, 136225, "hornOfWinter"), -- Horn of Winter
-    GetBuffMenuItem(115069, 608951, "sturdyOx"), -- Stance of the Sturdy Ox (Monk)
-    GetBuffMenuItem(115921, 608952, "legacyEmperor"), -- Legacy of the Emperor (Monk)
-    GetBuffMenuItem(115203, 608953, "fortifyingBrew"), -- Fortifying Brew (Monk)
+	GetBuffMenuItem(nil, 136092, "spellHaste", L["Spell Haste"], {defaultHaste = 10}), -- Spell Haste (default 10% for Dark Intent)
+	GetBuffMenuItem(nil, 236181, "meleeHaste", L["Melee Haste"]), -- Melee Haste
   }
   buffsContextValues = tFilter(buffsContextValues, function(item) return item ~= nil end, true)
 
@@ -2052,7 +2046,6 @@ self.s2hFactor = 0
       end
     end
   end
-  print("|cff33ff99ReforgeLite|r: Spirit-to-Hit factor for", playerClass, "spec", specID, "set to", self.s2hFactor)
   if self.s2hFactor > 0 then
     self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": " .. PERCENTAGE_STRING:format(self.s2hFactor))
     self.convertSpirit.text:Show ()
