@@ -1,6 +1,6 @@
 ## Interface: 50400
 ## Author: d07.RiV (Iroared) (Continued by Brues) (Continued by Oglav)
-## Title: ReforgeLite Classic
+## Title: MoP ReforgeLite
 ## Notes: Calculates optimal reforging for given weights/caps.
 ## Version: v2.0.0
 ## SavedVariables: ReforgeLiteDB
