@@ -555,209 +555,490 @@ do
 		end
 	end
 
-specInfo[268] = specInfo[268] or {}
-specInfo[268].name = specInfo[268].name or "Brewmaster"
-specInfo[268].icon = specInfo[268].icon or 608951 -- Keg Smash
-specInfo[269] = specInfo[269] or {}
-specInfo[269].name = specInfo[269].name or "Windwalker"
-specInfo[269].icon = specInfo[269].icon or 608953 -- Fists of Fury
-specInfo[270] = specInfo[270] or {}
-specInfo[270].name = specInfo[270].name or "Mistweaver"
-specInfo[270].icon = specInfo[270].icon or 608952
+	specInfo[268] = specInfo[268] or {}
+	specInfo[268].name = specInfo[268].name or "Brewmaster"
+	specInfo[268].icon = specInfo[268].icon or 608951 -- Keg Smash
+	specInfo[269] = specInfo[269] or {}
+	specInfo[269].name = specInfo[269].name or "Windwalker"
+	specInfo[269].icon = specInfo[269].icon or 608953 -- Fists of Fury
+	specInfo[270] = specInfo[270] or {}
+	specInfo[270].name = specInfo[270].name or "Mistweaver"
+	specInfo[270].icon = specInfo[270].icon or 608952
 
-  local presets = {
-    ["DEATHKNIGHT"] = {
-      [specs.deathknight.blood] = {
-        [RAID] = {
-          targetLevel = 3,
-          weights = {
-            0, 110, 100, 150, 20, 50, 120, 200
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.MeleeHitCap,
-                }
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.ExpSoftCap,
-                },
-              },
-            },
-          },
-        },
-        [LFG_TYPE_DUNGEON] = {
-          targetLevel = 2,
-          weights = {
-            0, 0, 0, 200, 0, 50, 200, 150
-          },
-          caps = MeleeCaps,
-        },
-      },
-      [specs.deathknight.frost] = {
-        [C_Spell.GetSpellName(49020)] = { -- Obliterate
-          icon = 135771,
-          weights = {
-            0, 0, 0, 200, 120, 160, 50, 90
-          },
-          caps = { HitCap },
-        },
-        [L["Masterfrost"]] = {
-          icon = 135833,
-          weights = {
-            0, 0, 0, 200, 120, 150, 100, 180
-          },
-          caps = CasterCaps
-        },
-      },
-      [specs.deathknight.unholy] = function()
-        local gurth = C_Item.IsEquippedItem(77191) or C_Item.IsEquippedItem(78478) or C_Item.IsEquippedItem(78487)
-        return {
-          weights = gurth and {
-            0, 0, 0, 350, 263, 301, 165, 248
-          } or {
-            0, 0, 0, 261, 233, 240, 113, 187
-          },
-          caps = { HitCap },
-        }
-      end,
-    },
-    ["DRUID"] = {
-      [specs.druid.balance] = {
+local presets = {
+  ["DEATHKNIGHT"] = {
+    [specs.deathknight.blood] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
-          0, 0, 0, 200, 100, 150, 0, 130
+          0,   -- Spirit
+          110, -- Dodge
+          100, -- Parry
+          150, -- Hit
+          20,  -- Crit
+          50,  -- Haste
+          120, -- Expertise
+          200  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.MeleeHitCap,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          100, -- Dodge
+          90,  -- Parry
+          140, -- Hit
+          30,  -- Crit
+          60,  -- Haste
+          110, -- Expertise
+          180  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          120, -- Dodge
+          80,  -- Parry
+          160, -- Hit
+          40,  -- Crit
+          70,  -- Haste
+          130, -- Expertise
+          170  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+    },
+    [specs.deathknight.frost] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          120, -- Crit
+          160, -- Haste
+          50,  -- Expertise
+          90   -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          130, -- Crit
+          170, -- Haste
+          60,  -- Expertise
+          100  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          140, -- Crit
+          180, -- Haste
+          70,  -- Expertise
+          80   -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+    },
+    [specs.deathknight.unholy] = {
+    [RAID] = {
+      targetLevel = 3,
+      weights = {
+        0,   -- Spirit
+        0,   -- Dodge
+        0,   -- Parry
+        261, -- Hit
+        233, -- Crit
+        240, -- Haste
+        113, -- Expertise
+        187  -- Mastery
+      },
+      caps = MeleeCaps,
+    },
+    [LFG_TYPE_DUNGEON] = {
+      targetLevel = 2,
+      weights = {
+        0,   -- Spirit
+        0,   -- Dodge
+        0,   -- Parry
+        250, -- Hit
+        240, -- Crit
+        250, -- Haste
+        120, -- Expertise
+        170  -- Mastery
+      },
+      caps = MeleeCaps,
+    },
+    [L["Challenge Mode"]] = {
+      targetLevel = 2,
+      weights = {
+        0,   -- Spirit
+        0,   -- Dodge
+        0,   -- Parry
+        240, -- Hit
+        250, -- Crit
+        260, -- Haste
+        130, -- Expertise
+        160  -- Mastery
+      },
+      caps = MeleeCaps,
+    },
+   },
+  },
+  ["DRUID"] = {
+    [specs.druid.balance] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          100, -- Crit
+          150, -- Haste
+          0,   -- Expertise
+          130  -- Mastery
         },
         caps = CasterCaps,
       },
-      [specs.druid.feralcombat] = {
-        [("%s (%s)"):format(C_Spell.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
-          icon = 132276,
-          weights = {
-            0, 54, 0, 25, 53, 7, 48, 37
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.MeleeHitCap,
-                },
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.ExpSoftCap,
-                },
-              },
-            },
-          },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          110, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
         },
-        [("%s (%s)"):format(C_Spell.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear Form (DPS)
-          icon = 132276,
-          weights = {
-            0, -6, 0, 100, 50, 25, 100, -1
-          },
-          caps = MeleeCaps,
-        },
-        [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Monocat"])] = { -- Cat Form (Monocat)
-          icon = 132115,
-          weights = {
-            0, 0, 0, 30, 31, 28, 30, 31
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.MeleeHitCap,
-                },
-              },
-            },
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.ExpSoftCap,
-                },
-              },
-            },
-          },
-        },
-        [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Bearweave"])] = { -- Cat Form (Bearweave)
-          icon = 132115,
-          weights = {
-            0, 0, 0, 33, 31, 26, 32, 30
-          },
-          caps = MeleeCaps,
-        },
+        caps = CasterCaps,
       },
-      [specs.druid.restoration] = {
-        [MANA_REGEN_ABBR] = {
-          weights = {
-            150, 0, 0, 0, 130, 160, 0, 140
-          },
-          caps = {
-            {
-              stat = StatHaste,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.FirstHasteBreak,
-                  after = 120,
-                },
-              },
-            },
-          },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          120, -- Crit
+          170, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
         },
-        [BONUS_HEALING] = {
-          weights = {
-            140, 0, 0, 0, 130, 160, 0, 150
-          },
-          caps = {
-            {
-              stat = StatHaste,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.FirstHasteBreak,
-                  after = 120,
-                },
-              },
-            },
-          },
-        },
-      }
+        caps = CasterCaps,
+      },
     },
-    ["HUNTER"] = {
-      [specs.hunter.beastmastery] = {
+    [specs.druid.feralcombat] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
-          0, 0, 0, 200, 150, 80, 0, 110
+          0,   -- Spirit
+          54,  -- Dodge
+          0,   -- Parry
+          150, -- Hit
+          53,  -- Crit
+          80,  -- Haste
+          120, -- Expertise
+          200  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          50,  -- Dodge
+          0,   -- Parry
+          140, -- Hit
+          60,  -- Crit
+          90,  -- Haste
+          110, -- Expertise
+          180  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          40,  -- Dodge
+          0,   -- Parry
+          130, -- Hit
+          70,  -- Crit
+          100, -- Haste
+          100, -- Expertise
+          170  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+    },
+    [specs.druid.restoration] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          150, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          130, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          140  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.FirstHasteBreak,
+                after = 120,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          140, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          140, -- Crit
+          170, -- Haste
+          0,   -- Expertise
+          130  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.FirstHasteBreak,
+                after = 110,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          130, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          150, -- Crit
+          180, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.FirstHasteBreak,
+                after = 100,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ["HUNTER"] = {
+    [specs.hunter.beastmastery] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          150, -- Crit
+          80,  -- Haste
+          0,   -- Expertise
+          110  -- Mastery
         },
         caps = RangedCaps,
       },
-      [specs.hunter.marksmanship] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 200, 150, 110, 0, 80
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          160, -- Crit
+          90,  -- Haste
+          0,   -- Expertise
+          100  -- Mastery
         },
         caps = RangedCaps,
       },
-      [specs.hunter.survival] = {
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 200, 110, 80, 0, 40
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          170, -- Crit
+          100, -- Haste
+          0,   -- Expertise
+          90   -- Mastery
+        },
+        caps = RangedCaps,
+      },
+    },
+    [specs.hunter.marksmanship] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          150, -- Crit
+          110, -- Haste
+          0,   -- Expertise
+          80   -- Mastery
+        },
+        caps = RangedCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          160, -- Crit
+          120, -- Haste
+          0,   -- Expertise
+          70   -- Mastery
+        },
+        caps = RangedCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          170, -- Crit
+          130, -- Haste
+          0,   -- Expertise
+          60   -- Mastery
+        },
+        caps = RangedCaps,
+      },
+    },
+    [specs.hunter.survival] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          110, -- Crit
+          80,  -- Haste
+          0,   -- Expertise
+          40   -- Mastery
+        },
+        caps = {
+          HitCap,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.FirstHasteBreak,
+                after = 0,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          120, -- Crit
+          90,  -- Haste
+          0,   -- Expertise
+          50   -- Mastery
+        },
+        caps = {
+          HitCap,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.FirstHasteBreak,
+                after = 0,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          130, -- Crit
+          100, -- Haste
+          0,   -- Expertise
+          60   -- Mastery
         },
         caps = {
           HitCap,
@@ -774,10 +1055,20 @@ specInfo[270].icon = specInfo[270].icon or 608952
         },
       },
     },
-    ["MAGE"] = {
-      [specs.mage.arcane] = {
+  },
+  ["MAGE"] = {
+    [specs.mage.arcane] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
-          0, 0, 0, 5, 1, 4, 0, 3
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          100, -- Crit
+          150, -- Haste
+          0,   -- Expertise
+          130  -- Mastery
         },
         caps = {
           HitCapSpell,
@@ -793,47 +1084,151 @@ specInfo[270].icon = specInfo[270].icon or 608952
           },
         },
       },
-      [specs.mage.fire] = {
-        [PERCENTAGE_STRING:format(15) .. " " .. STAT_HASTE] = {
-          weights = {
-            0, 0, 0, 5, 3, 4, 0, 1
-          },
-          caps = {
-            HitCapSpell,
-            {
-              stat = StatHaste,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.FirstHasteBreak,
-                  after = 2,
-                },
-              },
-            },
-          },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          110, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
         },
-        [PERCENTAGE_STRING:format(25) .. " " .. STAT_HASTE] = {
-          weights = {
-            0, 0, 0, 5, 3, 4, 0, 1
-          },
-          caps = {
-            HitCapSpell,
-            {
-              stat = StatHaste,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.SecondHasteBreak,
-                  after = 2,
-                },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ThirdHasteBreak,
+                after = 2,
               },
             },
           },
         },
       },
-      [specs.mage.frost] = {
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 200, 180, 140, 0, 130
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          120, -- Crit
+          170, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ThirdHasteBreak,
+                after = 2,
+              },
+            },
+          },
+        },
+      },
+    },
+    [specs.mage.fire] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          140, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SecondHasteBreak,
+                after = 2,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          150, -- Crit
+          170, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SecondHasteBreak,
+                after = 2,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          160, -- Crit
+          180, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SecondHasteBreak,
+                after = 2,
+              },
+            },
+          },
+        },
+      },
+    },
+    [specs.mage.frost] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          180, -- Crit
+          140, -- Haste
+          0,   -- Expertise
+          130  -- Mastery
         },
         caps = {
           HitCapSpell,
@@ -844,85 +1239,346 @@ specInfo[270].icon = specInfo[270].icon or 608952
                 method = AtMost,
                 value = addonTable.playerRace == "Worgen" and 2922 or 3101,
                 after = 100,
-              }
-            }
-          }
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          190, -- Crit
+          150, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatCrit,
+            points = {
+              {
+                method = AtMost,
+                value = addonTable.playerRace == "Worgen" and 2922 or 3101,
+                after = 100,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          200, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatCrit,
+            points = {
+              {
+                method = AtMost,
+                value = addonTable.playerRace == "Worgen" and 2922 or 3101,
+                after = 100,
+              },
+            },
+          },
         },
       },
     },
-    ["PALADIN"] = {
-      [specs.paladin.holy] = {
+  },
+  ["PALADIN"] = {
+    [specs.paladin.holy] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
-          160, 0, 0, 0, 80, 200, 0, 120
+          160, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          80,  -- Crit
+          200, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
         },
+        caps = CasterCaps,
       },
-      [specs.paladin.protection] = {
-        [PET_DEFENSIVE] = {
-          tanking = true,
-          weights = {
-            -1, 100, 100, 20, 0, 0, 50, 80
-          },
-        },
-        [DAMAGE] = {
-          weights = {
-            0, 0, 0, 4, 0, 0, 5, 2
-          },
-          caps = {
-            {
-              stat = StatExp,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.ExpSoftCap,
-                  after = 3,
-                },
-                {
-                  method = AtMost,
-                  preset = CAPS.ExpHardCap,
-                },
-              },
-            },
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtMost,
-                  preset = CAPS.MeleeHitCap,
-                }
-              },
-            },
-          },
-        },
-      },
-      [specs.paladin.retribution] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 200, 135, 110, 180, 150
+          150, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          90,  -- Crit
+          210, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          140, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          100, -- Crit
+          220, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+    [specs.paladin.protection] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          100, -- Dodge
+          100, -- Parry
+          150, -- Hit
+          50,  -- Crit
+          80,  -- Haste
+          120, -- Expertise
+          200  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          90,  -- Dodge
+          90,  -- Parry
+          140, -- Hit
+          60,  -- Crit
+          90,  -- Haste
+          110, -- Expertise
+          180  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          80,  -- Dodge
+          80,  -- Parry
+          130, -- Hit
+          70,  -- Crit
+          100, -- Haste
+          100, -- Expertise
+          170  -- Mastery
         },
         caps = MeleeCaps,
       },
     },
-    ["PRIEST"] = {
-      [specs.priest.discipline] = {
+    [specs.paladin.retribution] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
-          150, 0, 0, 0, 100, 120, 0, 80
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          135, -- Crit
+          110, -- Haste
+          180, -- Expertise
+          150  -- Mastery
         },
+        caps = MeleeCaps,
       },
-      [specs.priest.holy] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
         weights = {
-          150, 0, 0, 0, 80, 120, 0, 100
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          145, -- Crit
+          120, -- Haste
+          170, -- Expertise
+          140  -- Mastery
         },
+        caps = MeleeCaps,
       },
-      [specs.priest.shadow] = {
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 200, 100, 140, 0, 130
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          155, -- Crit
+          130, -- Haste
+          160, -- Expertise
+          130  -- Mastery
         },
-        caps = CasterCaps
+        caps = MeleeCaps,
       },
     },
-    ["ROGUE"] = {
-      [specs.rogue.assassination] = {
+  },
+  ["PRIEST"] = {
+    [specs.priest.discipline] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
-          0, 0, 0, 200, 110, 130, 120, 140
+          150, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          100, -- Crit
+          120, -- Haste
+          0,   -- Expertise
+          80   -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          140, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          110, -- Crit
+          130, -- Haste
+          0,   -- Expertise
+          90   -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          130, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          120, -- Crit
+          140, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+    [specs.priest.holy] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          150, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          80,  -- Crit
+          120, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          140, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          90,  -- Crit
+          130, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          130, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          100, -- Crit
+          140, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+    [specs.priest.shadow] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          100, -- Crit
+          140, -- Haste
+          0,   -- Expertise
+          130  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          110, -- Crit
+          150, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          120, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+  },
+  ["ROGUE"] = {
+    [specs.rogue.assassination] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          110, -- Crit
+          130, -- Haste
+          120, -- Expertise
+          140  -- Mastery
         },
         caps = {
           {
@@ -946,9 +1602,87 @@ specInfo[270].icon = specInfo[270].icon or 608952
           },
         },
       },
-      [specs.rogue.combat] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 200, 125, 170, 215, 150
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          120, -- Crit
+          140, -- Haste
+          110, -- Expertise
+          130  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 82,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          130, -- Crit
+          150, -- Haste
+          100, -- Expertise
+          120  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 82,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtMost,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+    },
+    [specs.rogue.combat] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          125, -- Crit
+          170, -- Haste
+          215, -- Expertise
+          150  -- Mastery
         },
         caps = {
           {
@@ -972,9 +1706,161 @@ specInfo[270].icon = specInfo[270].icon or 608952
           },
         },
       },
-      [specs.rogue.subtlety] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 155, 145, 155, 130, 90
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          135, -- Crit
+          180, -- Haste
+          205, -- Expertise
+          140  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 100,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          145, -- Crit
+          190, -- Haste
+          195, -- Expertise
+          130  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 100,
+              },
+            },
+          },
+        },
+      },
+    },
+    [specs.rogue.subtlety] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          155, -- Hit
+          145, -- Crit
+          155, -- Haste
+          130, -- Expertise
+          90   -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.MeleeHitCap,
+                after = 110,
+              },
+              {
+                preset = CAPS.SpellHitCap,
+                after = 80,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          145, -- Hit
+          155, -- Crit
+          165, -- Haste
+          120, -- Expertise
+          80   -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.MeleeHitCap,
+                after = 110,
+              },
+              {
+                preset = CAPS.SpellHitCap,
+                after = 80,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          135, -- Hit
+          165, -- Crit
+          175, -- Haste
+          110, -- Expertise
+          70   -- Mastery
         },
         caps = {
           {
@@ -1002,16 +1888,64 @@ specInfo[270].icon = specInfo[270].icon or 608952
         },
       },
     },
-    ["SHAMAN"] = {
-      [specs.shaman.elemental] = {
+  },
+  ["SHAMAN"] = {
+    [specs.shaman.elemental] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
-          0, 0, 0, 200, 80, 140, 0, 120
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          80,  -- Crit
+          140, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
         },
         caps = CasterCaps,
       },
-      [specs.shaman.enhancement] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
         weights = {
-          0, 0, 0, 250, 120, 80, 190, 150
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          90,  -- Crit
+          150, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          100, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+    [specs.shaman.enhancement] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          250, -- Hit
+          120, -- Crit
+          80,  -- Haste
+          190, -- Expertise
+          150  -- Mastery
         },
         caps = {
           {
@@ -1035,90 +1969,460 @@ specInfo[270].icon = specInfo[270].icon or 608952
           },
         },
       },
-      [specs.shaman.restoration] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
         weights = {
-          130, 0, 0, 0, 100, 100, 0, 100
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          240, -- Hit
+          130, -- Crit
+          90,  -- Haste
+          180, -- Expertise
+          140  -- Mastery
         },
-      },
-    },
-    ["WARLOCK"] = {
-      [specs.warlock.afflication] = {
-        weights = {
-          0, 0, 0, 200, 140, 160, 0, 120
-        },
-        caps = CasterCaps,
-      },
-      [specs.warlock.destruction] = {
-        weights = {
-          0, 0, 0, 200, 140, 160, 0, 120
-        },
-        caps = CasterCaps,
-      },
-      [specs.warlock.demonology] = {
-        weights = {
-          0, 0, 0, 200, 120, 160, 0, 140
-        },
-        caps = CasterCaps,
-      },
-    },
-    ["WARRIOR"] = {
-      [specs.warrior.arms] = {
-        weights = {
-          0, 0, 0, 200, 150, 100, 200, 120
-        },
-        caps = MeleeCaps
-      },
-      [specs.warrior.fury] = {
-        [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
-          icon = 236316,
-          weights = {
-            0, 0, 0, 200, 150, 100, 180, 130
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.MeleeHitCap,
-                  after = 140,
-                },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 50,
               },
             },
-            SoftExpCap
           },
-        },
-        [C_Spell.GetSpellName(81099)] = { -- Single-Minded Fury
-          icon = 458974,
-          weights = {
-            0, 0, 0, 200, 150, 100, 180, 130
-          },
-          caps = {
-            {
-              stat = StatHit,
-              points = {
-                {
-                  method = AtLeast,
-                  preset = CAPS.MeleeHitCap,
-                  after = 140,
-                },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ExpSoftCap,
               },
             },
-            SoftExpCap
           },
         },
       },
-      [specs.warrior.protection] = {
-        tanking = true,
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
         weights = {
-          40, 100, 100, 0, 0, 0, 0, 40
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          230, -- Hit
+          140, -- Crit
+          100, -- Haste
+          170, -- Expertise
+          130  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 50,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
         },
       },
     },
-	["MONK"] = {
+    [specs.shaman.restoration] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          130, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          100, -- Crit
+          100, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SecondHasteBreak,
+                after = 100,
+              },
+            },
+          },
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          120, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          110, -- Crit
+          110, -- Haste
+          0,   -- Expertise
+          90   -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SecondHasteBreak,
+                after = 90,
+              },
+            },
+          },
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          110, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          120, -- Crit
+          120, -- Haste
+          0,   -- Expertise
+          80   -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SecondHasteBreak,
+                after = 80,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  ["WARLOCK"] = {
+    [specs.warlock.afflication] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          140, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          150, -- Crit
+          170, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          160, -- Crit
+          180, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+    [specs.warlock.demonology] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          120, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          140  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          130, -- Crit
+          170, -- Haste
+          0,   -- Expertise
+          130  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          140, -- Crit
+          180, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+    [specs.warlock.destruction] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          140, -- Crit
+          160, -- Haste
+          0,   -- Expertise
+          120  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          150, -- Crit
+          170, -- Haste
+          0,   -- Expertise
+          110  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          160, -- Crit
+          180, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+    },
+  },
+  ["WARRIOR"] = {
+    [specs.warrior.arms] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          150, -- Crit
+          100, -- Haste
+          200, -- Expertise
+          120  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          160, -- Crit
+          110, -- Haste
+          190, -- Expertise
+          110  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          170, -- Crit
+          120, -- Haste
+          180, -- Expertise
+          100  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+    },
+    [specs.warrior.fury] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          150, -- Crit
+          100, -- Haste
+          180, -- Expertise
+          130  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.MeleeHitCap,
+                after = 140,
+              },
+            },
+          },
+          SoftExpCap,
+        },
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          160, -- Crit
+          110, -- Haste
+          170, -- Expertise
+          120  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.MeleeHitCap,
+                after = 140,
+              },
+            },
+          },
+          SoftExpCap,
+        },
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          170, -- Crit
+          120, -- Haste
+          160, -- Expertise
+          110  -- Mastery
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.MeleeHitCap,
+                after = 140,
+              },
+            },
+          },
+          SoftExpCap,
+        },
+      },
+    },
+    [specs.warrior.protection] = {
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          40,  -- Spirit
+          100, -- Dodge
+          100, -- Parry
+          150, -- Hit
+          50,  -- Crit
+          80,  -- Haste
+          120, -- Expertise
+          200  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          30,  -- Spirit
+          90,  -- Dodge
+          90,  -- Parry
+          140, -- Hit
+          60,  -- Crit
+          90,  -- Haste
+          110, -- Expertise
+          180  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          20,  -- Spirit
+          80,  -- Dodge
+          80,  -- Parry
+          130, -- Hit
+          70,  -- Crit
+          100, -- Haste
+          100, -- Expertise
+          170  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+    },
+  },
+  ["MONK"] = {
     [specs.monk.brewmaster] = {
       [RAID] = {
-        tanking = true,
         targetLevel = 3,
         weights = {
           0,   -- Spirit
@@ -1152,7 +2456,6 @@ specInfo[270].icon = specInfo[270].icon or 608952
         },
       },
       [LFG_TYPE_DUNGEON] = {
-        tanking = true,
         targetLevel = 2,
         weights = {
           0,   -- Spirit
@@ -1166,9 +2469,24 @@ specInfo[270].icon = specInfo[270].icon or 608952
         },
         caps = MeleeCaps,
       },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          100, -- Dodge
+          0,   -- Parry
+          110, -- Hit
+          50,  -- Crit
+          70,  -- Haste
+          110, -- Expertise
+          170  -- Mastery
+        },
+        caps = MeleeCaps,
+      },
     },
     [specs.monk.mistweaver] = {
-      [MANA_REGEN_ABBR] = {
+      [RAID] = {
+        targetLevel = 3,
         weights = {
           150, -- Spirit
           0,   -- Dodge
@@ -1181,41 +2499,84 @@ specInfo[270].icon = specInfo[270].icon or 608952
         },
         caps = CasterCaps,
       },
-      [BONUS_HEALING] = {
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          140, -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          0,   -- Hit
+          110, -- Crit
+          130, -- Haste
+          0,   -- Expertise
+          100  -- Mastery
+        },
+        caps = CasterCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
         weights = {
           130, -- Spirit
           0,   -- Dodge
           0,   -- Parry
           0,   -- Hit
-          110, -- Crit
+          120, -- Crit
           140, -- Haste
           0,   -- Expertise
-          120  -- Mastery
+          90   -- Mastery
         },
         caps = CasterCaps,
       },
     },
     [specs.monk.windwalker] = {
-      weights = {
-        0,   -- Spirit
-        0,   -- Dodge
-        0,   -- Parry
-        200, -- Hit
-        140, -- Crit
-        120, -- Haste
-        180, -- Expertise
-        100  -- Mastery
+      [RAID] = {
+        targetLevel = 3,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          200, -- Hit
+          140, -- Crit
+          120, -- Haste
+          180, -- Expertise
+          100  -- Mastery
+        },
+        caps = MeleeCaps,
       },
-      caps = MeleeCaps,
+      [LFG_TYPE_DUNGEON] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          190, -- Hit
+          150, -- Crit
+          130, -- Haste
+          170, -- Expertise
+          90   -- Mastery
+        },
+        caps = MeleeCaps,
+      },
+      [L["Challenge Mode"]] = {
+        targetLevel = 2,
+        weights = {
+          0,   -- Spirit
+          0,   -- Dodge
+          0,   -- Parry
+          180, -- Hit
+          160, -- Crit
+          140, -- Haste
+          160, -- Expertise
+          80   -- Mastery
+        },
+        caps = MeleeCaps,
+      },
     },
   },
-  }
-  --@non-debug@
-  ReforgeLite.presets = presets[addonTable.playerClass]
-  --@end-non-debug@
-  --[===[@debug@
-  ReforgeLite.presets = presets
-  --@end-debug@]===]
+}
+
+ReforgeLite.presets = presets[addonTable.playerClass]
+
 end
 
 function ReforgeLite:InitCustomPresets()
@@ -1340,7 +2701,6 @@ function ReforgeLite:InitPresets()
         self.targetLevel:SetValue(info.value.targetLevel)
       end
       self:SetStatWeights(info.value.weights, info.value.caps or {})
-      self:SetTankingModel (info.value.tanking)
     end
   }), "MENU")
 
