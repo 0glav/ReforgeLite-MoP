@@ -566,112 +566,372 @@ specInfo[270].name = specInfo[270].name or "Mistweaver"
 specInfo[270].icon = specInfo[270].icon or 608952
 
   local presets = {
-  ["DEATHKNIGHT"] = {
-    [specs.deathknight.blood] = {
-      [RAID] = {
-        targetLevel = 3,
-        weights = {
-          0,   -- Spirit
-          110, -- Dodge
-          100, -- Parry
-          180, -- Hit
-          80,  -- Crit
-          90,  -- Haste
-          150, -- Expertise
-          180  -- Mastery
-        },
-        caps = {
-          {
-            stat = StatHit,
-            points = {
-              {
-                method = AtMost,
-                preset = CAPS.MeleeHitCap,
-              }
+    ["DEATHKNIGHT"] = {
+      [specs.deathknight.blood] = {
+        [RAID] = {
+          targetLevel = 3,
+          weights = {
+            0, 110, 100, 150, 20, 50, 120, 200
+          },
+          caps = {
+            {
+              stat = StatHit,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.MeleeHitCap,
+                }
+              },
+            },
+            {
+              stat = StatExp,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.ExpSoftCap,
+                },
+              },
             },
           },
+        },
+        [LFG_TYPE_DUNGEON] = {
+          targetLevel = 2,
+          weights = {
+            0, 0, 0, 200, 0, 50, 200, 150
+          },
+          caps = MeleeCaps,
+        },
+      },
+      [specs.deathknight.frost] = {
+        [C_Spell.GetSpellName(49020)] = { -- Obliterate
+          icon = 135771,
+          weights = {
+            0, 0, 0, 200, 120, 160, 50, 90
+          },
+          caps = { HitCap },
+        },
+        [L["Masterfrost"]] = {
+          icon = 135833,
+          weights = {
+            0, 0, 0, 200, 120, 150, 100, 180
+          },
+          caps = CasterCaps
+        },
+      },
+      [specs.deathknight.unholy] = function()
+        local gurth = C_Item.IsEquippedItem(77191) or C_Item.IsEquippedItem(78478) or C_Item.IsEquippedItem(78487)
+        return {
+          weights = gurth and {
+            0, 0, 0, 350, 263, 301, 165, 248
+          } or {
+            0, 0, 0, 261, 233, 240, 113, 187
+          },
+          caps = { HitCap },
+        }
+      end,
+    },
+    ["DRUID"] = {
+      [specs.druid.balance] = {
+        weights = {
+          0, 0, 0, 200, 100, 150, 0, 130
+        },
+        caps = CasterCaps,
+      },
+      [specs.druid.feralcombat] = {
+        [("%s (%s)"):format(C_Spell.GetSpellName(5487), TANK)] = { -- Bear Form (Tank)
+          icon = 132276,
+          weights = {
+            0, 54, 0, 25, 53, 7, 48, 37
+          },
+          caps = {
+            {
+              stat = StatHit,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.MeleeHitCap,
+                },
+              },
+            },
+            {
+              stat = StatExp,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.ExpSoftCap,
+                },
+              },
+            },
+          },
+        },
+        [("%s (%s)"):format(C_Spell.GetSpellName(5487), STAT_DPS_SHORT)] = { -- Bear Form (DPS)
+          icon = 132276,
+          weights = {
+            0, -6, 0, 100, 50, 25, 100, -1
+          },
+          caps = MeleeCaps,
+        },
+        [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Monocat"])] = { -- Cat Form (Monocat)
+          icon = 132115,
+          weights = {
+            0, 0, 0, 30, 31, 28, 30, 31
+          },
+          caps = {
+            {
+              stat = StatHit,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.MeleeHitCap,
+                },
+              },
+            },
+            {
+              stat = StatExp,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.ExpSoftCap,
+                },
+              },
+            },
+          },
+        },
+        [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Bearweave"])] = { -- Cat Form (Bearweave)
+          icon = 132115,
+          weights = {
+            0, 0, 0, 33, 31, 26, 32, 30
+          },
+          caps = MeleeCaps,
+        },
+      },
+      [specs.druid.restoration] = {
+        [MANA_REGEN_ABBR] = {
+          weights = {
+            150, 0, 0, 0, 130, 160, 0, 140
+          },
+          caps = {
+            {
+              stat = StatHaste,
+              points = {
+                {
+                  method = AtLeast,
+                  preset = CAPS.FirstHasteBreak,
+                  after = 120,
+                },
+              },
+            },
+          },
+        },
+        [BONUS_HEALING] = {
+          weights = {
+            140, 0, 0, 0, 130, 160, 0, 150
+          },
+          caps = {
+            {
+              stat = StatHaste,
+              points = {
+                {
+                  method = AtLeast,
+                  preset = CAPS.FirstHasteBreak,
+                  after = 120,
+                },
+              },
+            },
+          },
+        },
+      }
+    },
+    ["HUNTER"] = {
+      [specs.hunter.beastmastery] = {
+        weights = {
+          0, 0, 0, 200, 150, 80, 0, 110
+        },
+        caps = RangedCaps,
+      },
+      [specs.hunter.marksmanship] = {
+        weights = {
+          0, 0, 0, 200, 150, 110, 0, 80
+        },
+        caps = RangedCaps,
+      },
+      [specs.hunter.survival] = {
+        weights = {
+          0, 0, 0, 200, 110, 80, 0, 40
+        },
+        caps = {
+          HitCap,
           {
-            stat = StatExp,
+            stat = StatHaste,
             points = {
               {
                 method = AtMost,
-                preset = CAPS.ExpSoftCap,
+                preset = CAPS.FirstHasteBreak,
+                after = 0,
               },
             },
           },
         },
       },
-      [LFG_TYPE_DUNGEON] = {
-        targetLevel = 2,
+    },
+    ["MAGE"] = {
+      [specs.mage.arcane] = {
         weights = {
-          0,   -- Spirit
-          110, -- Dodge
-          100, -- Parry
-          170, -- Hit
-          70,  -- Crit
-          80,  -- Haste
-          140, -- Expertise
-          170  -- Mastery
+          0, 0, 0, 5, 1, 4, 0, 3
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ThirdHasteBreak,
+                after = 2,
+              },
+            },
+          },
+        },
+      },
+      [specs.mage.fire] = {
+        [PERCENTAGE_STRING:format(15) .. " " .. STAT_HASTE] = {
+          weights = {
+            0, 0, 0, 5, 3, 4, 0, 1
+          },
+          caps = {
+            HitCapSpell,
+            {
+              stat = StatHaste,
+              points = {
+                {
+                  method = AtLeast,
+                  preset = CAPS.FirstHasteBreak,
+                  after = 2,
+                },
+              },
+            },
+          },
+        },
+        [PERCENTAGE_STRING:format(25) .. " " .. STAT_HASTE] = {
+          weights = {
+            0, 0, 0, 5, 3, 4, 0, 1
+          },
+          caps = {
+            HitCapSpell,
+            {
+              stat = StatHaste,
+              points = {
+                {
+                  method = AtLeast,
+                  preset = CAPS.SecondHasteBreak,
+                  after = 2,
+                },
+              },
+            },
+          },
+        },
+      },
+      [specs.mage.frost] = {
+        weights = {
+          0, 0, 0, 200, 180, 140, 0, 130
+        },
+        caps = {
+          HitCapSpell,
+          {
+            stat = StatCrit,
+            points = {
+              {
+                method = AtMost,
+                value = addonTable.playerRace == "Worgen" and 2922 or 3101,
+                after = 100,
+              }
+            }
+          }
+        },
+      },
+    },
+    ["PALADIN"] = {
+      [specs.paladin.holy] = {
+        weights = {
+          160, 0, 0, 0, 80, 200, 0, 120
+        },
+      },
+      [specs.paladin.protection] = {
+        [PET_DEFENSIVE] = {
+          tanking = true,
+          weights = {
+            -1, 100, 100, 20, 0, 0, 50, 80
+          },
+        },
+        [DAMAGE] = {
+          weights = {
+            0, 0, 0, 4, 0, 0, 5, 2
+          },
+          caps = {
+            {
+              stat = StatExp,
+              points = {
+                {
+                  method = AtLeast,
+                  preset = CAPS.ExpSoftCap,
+                  after = 3,
+                },
+                {
+                  method = AtMost,
+                  preset = CAPS.ExpHardCap,
+                },
+              },
+            },
+            {
+              stat = StatHit,
+              points = {
+                {
+                  method = AtMost,
+                  preset = CAPS.MeleeHitCap,
+                }
+              },
+            },
+          },
+        },
+      },
+      [specs.paladin.retribution] = {
+        weights = {
+          0, 0, 0, 200, 135, 110, 180, 150
         },
         caps = MeleeCaps,
       },
     },
-    [specs.deathknight.frost] = {
-      [C_Spell.GetSpellName(49020)] = { -- Obliterate
-        icon = 135771,
+    ["PRIEST"] = {
+      [specs.priest.discipline] = {
         weights = {
-          0, 0, 0, 200, 120, 160, 50, 90
+          150, 0, 0, 0, 100, 120, 0, 80
         },
-        caps = { HitCap },
       },
-      [L["Masterfrost"]] = {
-        icon = 135833,
+      [specs.priest.holy] = {
         weights = {
-          0, 0, 0, 200, 120, 150, 100, 180
+          150, 0, 0, 0, 80, 120, 0, 100
+        },
+      },
+      [specs.priest.shadow] = {
+        weights = {
+          0, 0, 0, 200, 100, 140, 0, 130
         },
         caps = CasterCaps
       },
     },
-    [specs.deathknight.unholy] = function()
-      local gurth = C_Item.IsEquippedItem(77191) or C_Item.IsEquippedItem(78478) or C_Item.IsEquippedItem(78487)
-      return {
-        weights = gurth and {
-          0, 0, 0, 350, 263, 301, 165, 248
-        } or {
-          0, 0, 0, 261, 233, 240, 113, 187
-        },
-        caps = { HitCap },
-      }
-    end,
-  },
-  ["DRUID"] = {
-    [specs.druid.balance] = {
-      weights = {
-        0, 0, 0, 200, 100, 150, 0, 130
-      },
-      caps = CasterCaps,
-    },
-    [specs.druid.feralcombat] = {
-      [RAID] = { -- Bear Form (Tank)
-        icon = 132276,
-        targetLevel = 3,
+    ["ROGUE"] = {
+      [specs.rogue.assassination] = {
         weights = {
-          0,   -- Spirit
-          54,  -- Dodge
-          0,   -- Parry
-          180, -- Hit
-          80,  -- Crit
-          90,  -- Haste
-          150, -- Expertise
-          120  -- Mastery
+          0, 0, 0, 200, 110, 130, 120, 140
         },
         caps = {
           {
             stat = StatHit,
             points = {
               {
-                method = AtMost,
-                preset = CAPS.MeleeHitCap,
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 82,
               },
             },
           },
@@ -686,264 +946,9 @@ specInfo[270].icon = specInfo[270].icon or 608952
           },
         },
       },
-      [LFG_TYPE_DUNGEON] = { -- Bear Form (DPS)
-        icon = 132276,
-        targetLevel = 2,
+      [specs.rogue.combat] = {
         weights = {
-          0,   -- Spirit
-          54,  -- Dodge
-          0,   -- Parry
-          170, -- Hit
-          70,  -- Crit
-          80,  -- Haste
-          140, -- Expertise
-          110  -- Mastery
-        },
-        caps = MeleeCaps,
-      },
-      [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Monocat"])] = { -- Cat Form (Monocat)
-        icon = 132115,
-        weights = {
-          0, 0, 0, 30, 31, 28, 30, 31
-        },
-        caps = {
-          {
-            stat = StatHit,
-            points = {
-              {
-                method = AtMost,
-                preset = CAPS.MeleeHitCap,
-              },
-            },
-          },
-          {
-            stat = StatExp,
-            points = {
-              {
-                method = AtMost,
-                preset = CAPS.ExpSoftCap,
-              },
-            },
-          },
-        },
-      },
-      [("%s (%s)"):format(C_Spell.GetSpellName(768), L["Bearweave"])] = { -- Cat Form (Bearweave)
-        icon = 132115,
-        weights = {
-          0, 0, 0, 33, 31, 26, 32, 30
-        },
-        caps = MeleeCaps,
-      },
-    },
-    [specs.druid.restoration] = {
-      [MANA_REGEN_ABBR] = {
-        weights = {
-          150, 0, 0, 0, 130, 160, 0, 140
-        },
-        caps = {
-          {
-            stat = StatHaste,
-            points = {
-              {
-                method = AtLeast,
-                preset = CAPS.FirstHasteBreak,
-                after = 120,
-              },
-            },
-          },
-        },
-      },
-      [BONUS_HEALING] = {
-        weights = {
-          140, 0, 0, 0, 130, 160, 0, 150
-        },
-        caps = {
-          {
-            stat = StatHaste,
-            points = {
-              {
-                method = AtLeast,
-                preset = CAPS.FirstHasteBreak,
-                after = 120,
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  ["HUNTER"] = {
-    [specs.hunter.beastmastery] = {
-      weights = {
-        0, 0, 0, 200, 150, 80, 0, 110
-      },
-      caps = RangedCaps,
-    },
-    [specs.hunter.marksmanship] = {
-      weights = {
-        0, 0, 0, 200, 150, 110, 0, 80
-      },
-      caps = RangedCaps,
-    },
-    [specs.hunter.survival] = {
-      weights = {
-        0, 0, 0, 200, 110, 80, 0, 40
-      },
-      caps = {
-        HitCap,
-        {
-          stat = StatHaste,
-          points = {
-            {
-              method = AtMost,
-              preset = CAPS.FirstHasteBreak,
-              after = 0,
-            },
-          },
-        },
-      },
-    },
-  },
-  ["MAGE"] = {
-    [specs.mage.arcane] = {
-      weights = {
-        0, 0, 0, 5, 1, 4, 0, 3
-      },
-      caps = {
-        HitCapSpell,
-        {
-          stat = StatHaste,
-          points = {
-            {
-              method = AtLeast,
-              preset = CAPS.ThirdHasteBreak,
-              after = 2,
-            },
-          },
-        },
-      },
-    },
-    [specs.mage.fire] = {
-      [PERCENTAGE_STRING:format(15) .. " " .. STAT_HASTE] = {
-        weights = {
-          0, 0, 0, 5, 3, 4, 0, 1
-        },
-        caps = {
-          HitCapSpell,
-          {
-            stat = StatHaste,
-            points = {
-              {
-                method = AtLeast,
-                preset = CAPS.FirstHasteBreak,
-                after = 2,
-              },
-            },
-          },
-        },
-      },
-      [PERCENTAGE_STRING:format(25) .. " " .. STAT_HASTE] = {
-        weights = {
-          0, 0, 0, 5, 3, 4, 0, 1
-        },
-        caps = {
-          HitCapSpell,
-          {
-            stat = StatHaste,
-            points = {
-              {
-                method = AtLeast,
-                preset = CAPS.SecondHasteBreak,
-                after = 2,
-              },
-            },
-          },
-        },
-      },
-    },
-    [specs.mage.frost] = {
-      weights = {
-        0, 0, 0, 200, 180, 140, 0, 130
-      },
-      caps = {
-        HitCapSpell,
-        {
-          stat = StatCrit,
-          points = {
-            {
-              method = AtMost,
-              value = addonTable.playerRace == "Worgen" and 2922 or 3101,
-              after = 100,
-            }
-          }
-        }
-      },
-    },
-  },
-  ["PALADIN"] = {
-    [specs.paladin.holy] = {
-      weights = {
-        160, 0, 0, 0, 80, 200, 0, 120
-      },
-    },
-    [specs.paladin.protection] = {
-      [RAID] = {
-        targetLevel = 3,
-        weights = {
-          0,   -- Spirit
-          100, -- Dodge
-          100, -- Parry
-          180, -- Hit
-          80,  -- Crit
-          90,  -- Haste
-          150, -- Expertise
-          120  -- Mastery
-        },
-        caps = {
-          {
-            stat = StatHit,
-            points = {
-              {
-                method = AtMost,
-                preset = CAPS.MeleeHitCap,
-              }
-            },
-          },
-          {
-            stat = StatExp,
-            points = {
-              {
-                method = AtMost,
-                preset = CAPS.ExpSoftCap,
-              },
-            },
-          },
-        },
-      },
-      [LFG_TYPE_DUNGEON] = {
-        targetLevel = 2,
-        weights = {
-          0,   -- Spirit
-          100, -- Dodge
-          100, -- Parry
-          170, -- Hit
-          70,  -- Crit
-          80,  -- Haste
-          140, -- Expertise
-          110  -- Mastery
-        },
-        caps = MeleeCaps,
-      },
-      [DAMAGE] = {
-        weights = {
-          0,   -- Spirit
-          100, -- Dodge
-          100, -- Parry
-          180, -- Hit
-          100, -- Crit
-          100, -- Haste
-          160, -- Expertise
-          140  -- Mastery
+          0, 0, 0, 200, 125, 170, 215, 150
         },
         caps = {
           {
@@ -952,11 +957,6 @@ specInfo[270].icon = specInfo[270].icon or 608952
               {
                 method = AtLeast,
                 preset = CAPS.ExpSoftCap,
-                after = 3,
-              },
-              {
-                method = AtMost,
-                preset = CAPS.ExpHardCap,
               },
             },
           },
@@ -964,193 +964,17 @@ specInfo[270].icon = specInfo[270].icon or 608952
             stat = StatHit,
             points = {
               {
-                method = AtMost,
-                preset = CAPS.MeleeHitCap,
-              }
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 100,
+              },
             },
           },
         },
       },
-    },
-    [specs.paladin.retribution] = {
-      weights = {
-        0, 0, 0, 200, 135, 110, 180, 150
-      },
-      caps = MeleeCaps,
-    },
-  },
-  ["PRIEST"] = {
-    [specs.priest.discipline] = {
-      weights = {
-        150, 0, 0, 0, 100, 120, 0, 80
-      },
-    },
-    [specs.priest.holy] = {
-      weights = {
-        150, 0, 0, 0, 80, 120, 0, 100
-      },
-    },
-    [specs.priest.shadow] = {
-      weights = {
-        0, 0, 0, 200, 100, 140, 0, 130
-      },
-      caps = CasterCaps
-    },
-  },
-  ["ROGUE"] = {
-    [specs.rogue.assassination] = {
-      weights = {
-        0, 0, 0, 200, 110, 130, 120, 140
-      },
-      caps = {
-        {
-          stat = StatHit,
-          points = {
-            {
-              method = AtLeast,
-              preset = CAPS.SpellHitCap,
-              after = 82,
-            },
-          },
-        },
-        {
-          stat = StatExp,
-          points = {
-            {
-              method = AtMost,
-              preset = CAPS.ExpSoftCap,
-            },
-          },
-        },
-      },
-    },
-    [specs.rogue.combat] = {
-      weights = {
-        0, 0, 0, 200, 125, 170, 215, 150
-      },
-      caps = {
-        {
-          stat = StatExp,
-          points = {
-            {
-              method = AtLeast,
-              preset = CAPS.ExpSoftCap,
-            },
-          },
-        },
-        {
-          stat = StatHit,
-          points = {
-            {
-              method = AtLeast,
-              preset = CAPS.SpellHitCap,
-              after = 100,
-            },
-          },
-        },
-      },
-    },
-    [specs.rogue.subtlety] = {
-      weights = {
-        0, 0, 0, 155, 145, 155, 130, 90
-      },
-      caps = {
-        {
-          stat = StatHit,
-          points = {
-            {
-              method = AtLeast,
-              preset = CAPS.MeleeHitCap,
-              after = 110,
-            },
-            {
-              preset = CAPS.SpellHitCap,
-              after = 80,
-            },
-          },
-        },
-        {
-          stat = StatExp,
-          points = {
-            {
-              preset = CAPS.ExpSoftCap,
-            },
-          },
-        },
-      },
-    },
-  },
-  ["SHAMAN"] = {
-    [specs.shaman.elemental] = {
-      weights = {
-        0, 0, 0, 200, 80, 140, 0, 120
-      },
-      caps = CasterCaps,
-    },
-    [specs.shaman.enhancement] = {
-      weights = {
-        0, 0, 0, 250, 120, 80, 190, 150
-      },
-      caps = {
-        {
-          stat = StatHit,
-          points = {
-            {
-              method = AtLeast,
-              preset = CAPS.SpellHitCap,
-              after = 50,
-            },
-          },
-        },
-        {
-          stat = StatExp,
-          points = {
-            {
-              method = AtLeast,
-              preset = CAPS.ExpSoftCap,
-            },
-          },
-        },
-      },
-    },
-    [specs.shaman.restoration] = {
-      weights = {
-        130, 0, 0, 0, 100, 100, 0, 100
-      },
-    },
-  },
-  ["WARLOCK"] = {
-    [specs.warlock.afflication] = {
-      weights = {
-        0, 0, 0, 200, 140, 160, 0, 120
-      },
-      caps = CasterCaps,
-    },
-    [specs.warlock.destruction] = {
-      weights = {
-        0, 0, 0, 200, 140, 160, 0, 120
-      },
-      caps = CasterCaps,
-    },
-    [specs.warlock.demonology] = {
-      weights = {
-        0, 0, 0, 200, 120, 160, 0, 140
-      },
-      caps = CasterCaps,
-    },
-  },
-  ["WARRIOR"] = {
-    [specs.warrior.arms] = {
-      weights = {
-        0, 0, 0, 200, 150, 100, 200, 120
-      },
-      caps = MeleeCaps
-    },
-    [specs.warrior.fury] = {
-      [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
-        icon = 236316,
+      [specs.rogue.subtlety] = {
         weights = {
-          0, 0, 0, 200, 150, 100, 180, 130
+          0, 0, 0, 155, 145, 155, 130, 90
         },
         caps = {
           {
@@ -1159,96 +983,152 @@ specInfo[270].icon = specInfo[270].icon or 608952
               {
                 method = AtLeast,
                 preset = CAPS.MeleeHitCap,
-                after = 140,
+                after = 110,
               },
-            },
-          },
-          SoftExpCap
-        },
-      },
-      [C_Spell.GetSpellName(81099)] = { -- Single-Minded Fury
-        icon = 458974,
-        weights = {
-          0, 0, 0, 200, 150, 100, 180, 130
-        },
-        caps = {
-          {
-            stat = StatHit,
-            points = {
               {
-                method = AtLeast,
-                preset = CAPS.MeleeHitCap,
-                after = 140,
+                preset = CAPS.SpellHitCap,
+                after = 80,
               },
-            },
-          },
-          SoftExpCap
-        },
-      },
-    },
-    [specs.warrior.protection] = {
-      [RAID] = {
-        targetLevel = 3,
-        weights = {
-          0,   -- Spirit
-          100, -- Dodge
-          100, -- Parry
-          180, -- Hit
-          80,  -- Crit
-          90,  -- Haste
-          150, -- Expertise
-          120  -- Mastery
-        },
-        caps = {
-          {
-            stat = StatHit,
-            points = {
-              {
-                method = AtMost,
-                preset = CAPS.MeleeHitCap,
-              }
             },
           },
           {
             stat = StatExp,
             points = {
               {
-                method = AtMost,
                 preset = CAPS.ExpSoftCap,
               },
             },
           },
         },
       },
-      [LFG_TYPE_DUNGEON] = {
-        targetLevel = 2,
+    },
+    ["SHAMAN"] = {
+      [specs.shaman.elemental] = {
         weights = {
-          0,   -- Spirit
-          100, -- Dodge
-          100, -- Parry
-          170, -- Hit
-          70,  -- Crit
-          80,  -- Haste
-          140, -- Expertise
-          110  -- Mastery
+          0, 0, 0, 200, 80, 140, 0, 120
         },
-        caps = MeleeCaps,
+        caps = CasterCaps,
+      },
+      [specs.shaman.enhancement] = {
+        weights = {
+          0, 0, 0, 250, 120, 80, 190, 150
+        },
+        caps = {
+          {
+            stat = StatHit,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.SpellHitCap,
+                after = 50,
+              },
+            },
+          },
+          {
+            stat = StatExp,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.ExpSoftCap,
+              },
+            },
+          },
+        },
+      },
+      [specs.shaman.restoration] = {
+        weights = {
+          130, 0, 0, 0, 100, 100, 0, 100
+        },
       },
     },
-  },
-  ["MONK"] = {
+    ["WARLOCK"] = {
+      [specs.warlock.afflication] = {
+        weights = {
+          0, 0, 0, 200, 140, 160, 0, 120
+        },
+        caps = CasterCaps,
+      },
+      [specs.warlock.destruction] = {
+        weights = {
+          0, 0, 0, 200, 140, 160, 0, 120
+        },
+        caps = CasterCaps,
+      },
+      [specs.warlock.demonology] = {
+        weights = {
+          0, 0, 0, 200, 120, 160, 0, 140
+        },
+        caps = CasterCaps,
+      },
+    },
+    ["WARRIOR"] = {
+      [specs.warrior.arms] = {
+        weights = {
+          0, 0, 0, 200, 150, 100, 200, 120
+        },
+        caps = MeleeCaps
+      },
+      [specs.warrior.fury] = {
+        [C_Spell.GetSpellName(46917)] = { -- Titan's Grip
+          icon = 236316,
+          weights = {
+            0, 0, 0, 200, 150, 100, 180, 130
+          },
+          caps = {
+            {
+              stat = StatHit,
+              points = {
+                {
+                  method = AtLeast,
+                  preset = CAPS.MeleeHitCap,
+                  after = 140,
+                },
+              },
+            },
+            SoftExpCap
+          },
+        },
+        [C_Spell.GetSpellName(81099)] = { -- Single-Minded Fury
+          icon = 458974,
+          weights = {
+            0, 0, 0, 200, 150, 100, 180, 130
+          },
+          caps = {
+            {
+              stat = StatHit,
+              points = {
+                {
+                  method = AtLeast,
+                  preset = CAPS.MeleeHitCap,
+                  after = 140,
+                },
+              },
+            },
+            SoftExpCap
+          },
+        },
+      },
+      [specs.warrior.protection] = {
+        tanking = true,
+        weights = {
+          40, 100, 100, 0, 0, 0, 0, 40
+        },
+      },
+    },
+	["MONK"] = {
     [specs.monk.brewmaster] = {
       [RAID] = {
+        tanking = true,
         targetLevel = 3,
         weights = {
           0,   -- Spirit
           110, -- Dodge
           0,   -- Parry
-          180, -- Hit
-          80,  -- Crit
-          90,  -- Haste
-          150, -- Expertise
-          180  -- Mastery
+          150, -- Hit
+          50,  -- Crit
+          80,  -- Haste
+          120, -- Expertise
+          200  -- Mastery
         },
         caps = {
           {
@@ -1272,16 +1152,17 @@ specInfo[270].icon = specInfo[270].icon or 608952
         },
       },
       [LFG_TYPE_DUNGEON] = {
+        tanking = true,
         targetLevel = 2,
         weights = {
           0,   -- Spirit
-          110, -- Dodge
+          120, -- Dodge
           0,   -- Parry
-          170, -- Hit
-          70,  -- Crit
-          80,  -- Haste
-          140, -- Expertise
-          170  -- Mastery
+          100, -- Hit
+          40,  -- Crit
+          60,  -- Haste
+          100, -- Expertise
+          180  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -1328,7 +1209,7 @@ specInfo[270].icon = specInfo[270].icon or 608952
       caps = MeleeCaps,
     },
   },
-}
+  }
   --@non-debug@
   ReforgeLite.presets = presets[addonTable.playerClass]
   --@end-non-debug@
@@ -1459,6 +1340,7 @@ function ReforgeLite:InitPresets()
         self.targetLevel:SetValue(info.value.targetLevel)
       end
       self:SetStatWeights(info.value.weights, info.value.caps or {})
+      self:SetTankingModel (info.value.tanking)
     end
   }), "MENU")
 
