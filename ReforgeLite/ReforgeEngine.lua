@@ -12,43 +12,39 @@ local GetItemStats = C_Item.GetItemStats or GetItemStats
 
 ---------------------------------------------------------------------------------------
 function ReforgeLite:GetPlayerBuffs()
-  local kings, strength, flask, food, spellHaste, darkIntent, meleeHaste
+  local kings, flask, food, spellHaste, meleeHaste
   local slots = {C_UnitAuras.GetAuraSlots('player','helpful')}
   for i = 2, #slots do
     local aura = C_UnitAuras.GetAuraDataBySlot('player',slots[i])
     if aura then
       local id = aura.spellId
-      if id == 79063 or id == 79061 or id == 90363 then
+      if id == 20217 or id == 1126 or id == 115921 then -- Blessing of Kings, Mark of the Wild, Legacy of the Emperor
         kings = true
-      elseif id == 57330 or id == 93435 or id == 8076 or id == 6673 then
-        strength = true
-      elseif id == 87554 then -- 90 dodge food
+      elseif id == 105706 then -- 250 dodge food (Peach Pie)
         food = 2
-      elseif id == 87555 then -- 90 parry food
+      elseif id == 105700 then -- 250 parry food (Blanched Needle Mushrooms)
         food = 3
-      elseif id == 87549 then -- 90 mastery food
+      elseif id == 105694 then -- 250 mastery food (Sea Mist Rice Noodles)
         food = 1
-      elseif id == 87545 then -- 90 strength food
+      elseif id == 105701 then -- 250 strength food (Black Pepper Ribs and Shrimp)
         food = 4
-      elseif id == 57371 then -- 40 strength food
+      elseif id == 104300 then -- 100 strength food (Chun Tian Spring Rolls)
         food = 5
-      elseif id == 79472 or id == 92731 then -- 300 strength flask
+      elseif id == 94162 then -- 1000 strength flask (Flask of Winter's Bite)
         flask = 1
-      elseif id == 79635 then -- 225 mastery elixir
+      elseif id == 92679 then -- 300 stamina flask (Flask of Steelskin)
         flask = 2
-      elseif id == 49868 or id == 24907 or id == 2895 then
+      elseif id == 24907 or id == 15473 or id == 51470 then -- Moonkin Aura, Shadowform, Elemental Oath
         spellHaste = true
-      elseif id == 85768 or id == 85767 then
-        darkIntent = true
-      elseif id == 53290 or id == 55610 or id == 8515 then
+      elseif id == 55610 or id == 30809 or id == 113742 then -- Unholy Aura, Unleashed Rage, Swiftblade's Cunning
         meleeHaste = true
       end
     end
   end
-  return kings, strength, flask, food, spellHaste, darkIntent, meleeHaste
+  return kings, flask, food, spellHaste, meleeHaste
 end
 function ReforgeLite:DiminishStat (rating, stat)
-  return rating > 0 and 1 / (0.0152366 + 0.956 / (rating / self:RatingPerPoint (stat))) or 0
+  return rating > 0 and 1 / (0.00687 + 0.956 / (rating / self:RatingPerPoint(stat))) or 0
 end
 function ReforgeLite:GetMethodScore (method)
   local score = 0
@@ -74,76 +70,74 @@ function ReforgeLite:GetMethodScore (method)
 end
 
 local itemBonuses = {
-  --         str  dod  par  mas
-  [58180] = { 380,   0,   0,   0 }, -- License to Slay
-  [68982] = {   0,   0,   0, 390 }, -- Necromantic Focus, lol
-  [69139] = {   0,   0,   0, 440 }, -- Necromantic Focus H
-  [77978] = {   0, 780,   0,   0 }, -- Resolve of Undying LFR
-  [77201] = {   0, 880,   0,   0 }, -- Resolve of Undying
-  [77998] = {   0, 990,   0,   0 }, -- Resolve of Undying H
-  [77977] = { 780,   0,   0,   0 }, -- Eye of Unmaking LFR
-  [77200] = { 880,   0,   0,   0 }, -- Eye of Unmaking
-  [77997] = { 990,   0,   0,   0 }, -- Eye of Unmaking H
+  -- Cataclysm-era
+  [58180] = { 380, 0, 0, 0 },   -- License to Slay
+  [68982] = { 0, 0, 0, 390 },   -- Necromantic Focus
+  [69139] = { 0, 0, 0, 440 },   -- Necromantic Focus (H)
+  [77978] = { 0, 780, 0, 0 },   -- Resolve of Undying (LFR)
+  [77201] = { 0, 880, 0, 0 },   -- Resolve of Undying (Normal)
+  [77998] = { 0, 990, 0, 0 },   -- Resolve of Undying (H)
+  [77977] = { 780, 0, 0, 0 },   -- Eye of Unmaking (LFR)
+  [77200] = { 880, 0, 0, 0 },   -- Eye of Unmaking (Normal)
+  [77997] = { 990, 0, 0, 0 },   -- Eye of Unmaking (H)
+
+  -- Mists of Pandaria Prepatch-relevant Trinkets
+  [87063] = { 0, 0, 0, 1658 },  -- Qin-xi's Polarizing Seal (Mastery)
+  [87065] = { 0, 0, 0, 1658 },  -- Lei Shin's Final Orders (Mastery)
+  [86790] = { 0, 0, 0, 1467 },  -- Relic of Niuzao (Mastery proc)
+  [87065] = { 0, 0, 0, 1658 },  -- Bottle of Infinite Stars (Mastery)
+  [87163] = { 0, 0, 0, 1658 },  -- Steadfast Talisman of the Shado-Pan
+  [87167] = { 0, 0, 0, 1658 },  -- Jade Warlord Figurine (Mastery)
 }
 
-function ReforgeLite:GetBuffBonuses ()
+function ReforgeLite:GetBuffBonuses()
   local cur_buffs = {self:GetPlayerBuffs()}
-  local cur_strength = UnitStat ("player", LE_UNIT_STAT_STRENGTH)
-  local strength = cur_strength
-  local extra_strength = 0
   local dodge_bonus = 0
-  local parry_bonus = floor ((strength - cur_strength) * 0.27)
+  local parry_bonus = 0
   local mastery_bonus = 0
+  local stamina_bonus = 0
   for i = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
-    local bonus = itemBonuses[GetInventoryItemID ("player", i)]
+    local bonus = itemBonuses[GetInventoryItemID("player", i)]
     if bonus then
-      extra_strength = extra_strength + bonus[1]
       dodge_bonus = dodge_bonus + bonus[2]
       parry_bonus = parry_bonus + bonus[3]
       mastery_bonus = mastery_bonus + bonus[4]
     end
   end
-  if self.pdb.buffs.strength and not cur_buffs[2] then
-    extra_strength = extra_strength + 549
+  if self.pdb.buffs.food == 1 and cur_buffs[3] ~= 1 then
+    mastery_bonus = mastery_bonus + 250 -- Sea Mist Rice Noodles
   end
-  if self.pdb.buffs.flask == 1 and cur_buffs[3] ~= 1 then
-    extra_strength = extra_strength + 300
-    if IsPlayerSpell(80723) then
-      extra_strength = extra_strength + 80
-    end
+  if self.pdb.buffs.food == 2 and cur_buffs[3] ~= 2 then
+    dodge_bonus = dodge_bonus + 250 -- Peach Pie
   end
-  if self.pdb.buffs.food == 4 and cur_buffs[4] ~= 4 then
-    extra_strength = extra_strength + 90
+  if self.pdb.buffs.food == 3 and cur_buffs[3] ~= 3 then
+    parry_bonus = parry_bonus + 250 -- Blanched Needle Mushrooms
   end
-  if self.pdb.buffs.food == 5 and cur_buffs[4] ~= 5 then
-    extra_strength = extra_strength + 40
+  if self.pdb.buffs.food == 4 and cur_buffs[3] ~= 4 then
+    -- Strength food (Black Pepper Ribs and Shrimp) ignored, as strength not used directly
   end
-  if cur_buffs[1] then
-    extra_strength = extra_strength * 1.05
+  if self.pdb.buffs.food == 5 and cur_buffs[3] ~= 5 then
+    -- Low-tier strength food (Chun Tian Spring Rolls) ignored
   end
-  strength = strength + extra_strength
-  if self.pdb.buffs.kings and not cur_buffs[1] then
-    strength = strength * 1.05
+  if self.pdb.buffs.flask == 1 and cur_buffs[2] ~= 1 then
+    -- Flask of Winter's Bite (1000 strength) ignored, as strength not used directly
   end
-  strength = floor (strength)
-  parry_bonus = parry_bonus + floor ((strength - cur_strength) * 0.27)
-  if self.pdb.buffs.flask == 2 and cur_buffs[3] ~= 2 then
-    mastery_bonus = mastery_bonus + 225
-    if IsPlayerSpell(80497) then
-      mastery_bonus = mastery_bonus + 40
-    end
+  if self.pdb.buffs.flask == 2 and cur_buffs[2] ~= 2 then
+    stamina_bonus = stamina_bonus + 300 -- Flask of Steelskin
   end
-  if self.pdb.buffs.food == 1 and cur_buffs[4] ~= 1 then
-    mastery_bonus = mastery_bonus + 90
+  if cur_buffs[1] or self.pdb.buffs.kings then
+    dodge_bonus = dodge_bonus * 1.05
+    parry_bonus = parry_bonus * 1.05
+    mastery_bonus = mastery_bonus * 1.05
+    stamina_bonus = stamina_bonus * 1.05
   end
-  if self.pdb.buffs.food == 2 and cur_buffs[4] ~= 2 then
-    dodge_bonus = dodge_bonus + 90
-  end
-  if self.pdb.buffs.food == 3 and cur_buffs[4] ~= 3 then
-    parry_bonus = parry_bonus + 90
-  end
-  return dodge_bonus, parry_bonus, mastery_bonus
+  dodge_bonus = floor(dodge_bonus)
+  parry_bonus = floor(parry_bonus)
+  mastery_bonus = floor(mastery_bonus)
+  stamina_bonus = floor(stamina_bonus)
+  return dodge_bonus, parry_bonus, mastery_bonus, stamina_bonus
 end
+
 function ReforgeLite:UpdateMethodStats (method)
   method.stats = {}
   for i = 1, #self.itemStats do
@@ -187,12 +181,16 @@ function ReforgeLite:UpdateMethodStats (method)
     method.stats.parry = GetParryChance () - self:DiminishStat (GetCombatRating (CR_PARRY), self.STATS.PARRY)
     method.stats.dodge = method.stats.dodge + self:DiminishStat (method.stats[self.STATS.DODGE], self.STATS.DODGE)
     method.stats.parry = method.stats.parry + self:DiminishStat (method.stats[self.STATS.PARRY], self.STATS.PARRY)
-    if playerClass == "WARRIOR" then
-      method.stats.critBlock = (8 + method.stats[self.STATS.MASTERY] / self:RatingPerPoint (self.STATS.MASTERY)) * 1.5
-      method.stats.block = 20 + method.stats.critBlock
-    elseif playerClass == "PALADIN" then
-      method.stats.block = 5 + (8 + method.stats[self.STATS.MASTERY] / self:RatingPerPoint (self.STATS.MASTERY)) * 2.25
-    end
+	local mastery = method.stats[self.STATS.MASTERY]
+	local masteryPercent = mastery / self:RatingPerPoint(self.STATS.MASTERY)
+
+	if playerClass == "WARRIOR" then
+		method.stats.critBlock = masteryPercent * 1.5
+		method.stats.block = 15 + method.stats.critBlock
+	elseif playerClass == "PALADIN" then
+		method.stats.block = 5 + masteryPercent
+	end
+
     local unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
     method.stats.overcap = nil
     if method.stats.block and missChance + method.stats.dodge + method.stats.parry + method.stats.block > unhit then
