@@ -20,10 +20,6 @@ function ReforgeLite:GetPlayerBuffs()
       local id = aura.spellId
       if id == 20217 or id == 1126 or id == 115921 then -- Blessing of Kings, Mark of the Wild, Legacy of the Emperor
         kings = true
-      elseif id == 105706 then -- 250 dodge food (Peach Pie)
-        food = 2
-      elseif id == 105700 then -- 250 parry food (Blanched Needle Mushrooms)
-        food = 3
       elseif id == 105694 then -- 250 mastery food (Sea Mist Rice Noodles)
         food = 1
       elseif id == 105701 then -- 250 strength food (Black Pepper Ribs and Shrimp)
@@ -43,45 +39,20 @@ function ReforgeLite:GetPlayerBuffs()
   end
   return kings, flask, food, spellHaste, meleeHaste
 end
+
 function ReforgeLite:DiminishStat (rating, stat)
   return rating > 0 and 1 / (0.00687 + 0.956 / (rating / self:RatingPerPoint(stat))) or 0
 end
 function ReforgeLite:GetMethodScore (method)
   local score = 0
-  if method.tankingModel then
-    score = method.stats.dodge * self.pdb.weights[self.STATS.DODGE] + method.stats.parry * self.pdb.weights[self.STATS.PARRY]
-    if playerClass == "WARRIOR" then
-      score = score + method.stats.block * self.pdb.weights[self.STATS.MASTERY] + method.stats.critBlock * self.pdb.weights[self.STATS.CRITBLOCK]
-    elseif playerClass == "PALADIN" then
-      score = score + method.stats.block * self.pdb.weights[self.STATS.MASTERY]
-    else
-      for i = 1, #self.itemStats do
-        if i ~= self.STATS.DODGE and i ~= self.STATS.PARRY and i ~= self.STATS.SPIRIT then
-          score = score + method.stats[i] * self.pdb.weights[i]
-        end
-      end
-    end
-  else
-    for i = 1, #self.itemStats do
-      score = score + self:GetStatScore (i, method.stats[i])
-    end
+  for i = 1, #self.itemStats do
+    score = score + self:GetStatScore (i, method.stats[i])
   end
   return RoundToSignificantDigits(score, 2)
 end
 
 local itemBonuses = {
-  -- Cataclysm-era
-  [58180] = { 380, 0, 0, 0 },   -- License to Slay
-  [68982] = { 0, 0, 0, 390 },   -- Necromantic Focus
-  [69139] = { 0, 0, 0, 440 },   -- Necromantic Focus (H)
-  [77978] = { 0, 780, 0, 0 },   -- Resolve of Undying (LFR)
-  [77201] = { 0, 880, 0, 0 },   -- Resolve of Undying (Normal)
-  [77998] = { 0, 990, 0, 0 },   -- Resolve of Undying (H)
-  [77977] = { 780, 0, 0, 0 },   -- Eye of Unmaking (LFR)
-  [77200] = { 880, 0, 0, 0 },   -- Eye of Unmaking (Normal)
-  [77997] = { 990, 0, 0, 0 },   -- Eye of Unmaking (H)
-
-  -- Mists of Pandaria Prepatch-relevant Trinkets
+  -- Mists of Pandaria Trinkets
   [87063] = { 0, 0, 0, 1658 },  -- Qin-xi's Polarizing Seal (Mastery)
   [87065] = { 0, 0, 0, 1658 },  -- Lei Shin's Final Orders (Mastery)
   [86790] = { 0, 0, 0, 1467 },  -- Relic of Niuzao (Mastery proc)
@@ -89,54 +60,6 @@ local itemBonuses = {
   [87163] = { 0, 0, 0, 1658 },  -- Steadfast Talisman of the Shado-Pan
   [87167] = { 0, 0, 0, 1658 },  -- Jade Warlord Figurine (Mastery)
 }
-
-function ReforgeLite:GetBuffBonuses()
-  local cur_buffs = {self:GetPlayerBuffs()}
-  local dodge_bonus = 0
-  local parry_bonus = 0
-  local mastery_bonus = 0
-  local stamina_bonus = 0
-  for i = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED do
-    local bonus = itemBonuses[GetInventoryItemID("player", i)]
-    if bonus then
-      dodge_bonus = dodge_bonus + bonus[2]
-      parry_bonus = parry_bonus + bonus[3]
-      mastery_bonus = mastery_bonus + bonus[4]
-    end
-  end
-  if self.pdb.buffs.food == 1 and cur_buffs[3] ~= 1 then
-    mastery_bonus = mastery_bonus + 250 -- Sea Mist Rice Noodles
-  end
-  if self.pdb.buffs.food == 2 and cur_buffs[3] ~= 2 then
-    dodge_bonus = dodge_bonus + 250 -- Peach Pie
-  end
-  if self.pdb.buffs.food == 3 and cur_buffs[3] ~= 3 then
-    parry_bonus = parry_bonus + 250 -- Blanched Needle Mushrooms
-  end
-  if self.pdb.buffs.food == 4 and cur_buffs[3] ~= 4 then
-    -- Strength food (Black Pepper Ribs and Shrimp) ignored, as strength not used directly
-  end
-  if self.pdb.buffs.food == 5 and cur_buffs[3] ~= 5 then
-    -- Low-tier strength food (Chun Tian Spring Rolls) ignored
-  end
-  if self.pdb.buffs.flask == 1 and cur_buffs[2] ~= 1 then
-    -- Flask of Winter's Bite (1000 strength) ignored, as strength not used directly
-  end
-  if self.pdb.buffs.flask == 2 and cur_buffs[2] ~= 2 then
-    stamina_bonus = stamina_bonus + 300 -- Flask of Steelskin
-  end
-  if cur_buffs[1] or self.pdb.buffs.kings then
-    dodge_bonus = dodge_bonus * 1.05
-    parry_bonus = parry_bonus * 1.05
-    mastery_bonus = mastery_bonus * 1.05
-    stamina_bonus = stamina_bonus * 1.05
-  end
-  dodge_bonus = floor(dodge_bonus)
-  parry_bonus = floor(parry_bonus)
-  mastery_bonus = floor(mastery_bonus)
-  stamina_bonus = floor(stamina_bonus)
-  return dodge_bonus, parry_bonus, mastery_bonus, stamina_bonus
-end
 
 function ReforgeLite:UpdateMethodStats (method)
   method.stats = {}
@@ -167,37 +90,6 @@ function ReforgeLite:UpdateMethodStats (method)
     method.stats[self.STATS.HIT] = method.stats[self.STATS.HIT] +
       Round((method.stats[self.STATS.SPIRIT] - oldspi) * self.s2hFactor / 100)
   end
-  if method.tankingModel then
-    local dodge_bonus, parry_bonus, mastery_bonus = self:GetBuffBonuses ()
-    method.orig_stats = {
-      [self.STATS.DODGE] = method.stats[self.STATS.DODGE],
-      [self.STATS.PARRY] = method.stats[self.STATS.PARRY],
-      [self.STATS.MASTERY] = method.stats[self.STATS.MASTERY],
-    }
-    method.stats[self.STATS.DODGE] = method.stats[self.STATS.DODGE] + dodge_bonus
-    method.stats[self.STATS.PARRY] = method.stats[self.STATS.PARRY] + parry_bonus
-    method.stats[self.STATS.MASTERY] = method.stats[self.STATS.MASTERY] + mastery_bonus
-    method.stats.dodge = GetDodgeChance () - self:DiminishStat (GetCombatRating (CR_DODGE), self.STATS.DODGE)
-    method.stats.parry = GetParryChance () - self:DiminishStat (GetCombatRating (CR_PARRY), self.STATS.PARRY)
-    method.stats.dodge = method.stats.dodge + self:DiminishStat (method.stats[self.STATS.DODGE], self.STATS.DODGE)
-    method.stats.parry = method.stats.parry + self:DiminishStat (method.stats[self.STATS.PARRY], self.STATS.PARRY)
-	local mastery = method.stats[self.STATS.MASTERY]
-	local masteryPercent = mastery / self:RatingPerPoint(self.STATS.MASTERY)
-
-	if playerClass == "WARRIOR" then
-		method.stats.critBlock = masteryPercent * 1.5
-		method.stats.block = 15 + method.stats.critBlock
-	elseif playerClass == "PALADIN" then
-		method.stats.block = 5 + masteryPercent
-	end
-
-    local unhit = 100 + 0.8 * max (0, self.pdb.targetLevel)
-    method.stats.overcap = nil
-    if method.stats.block and missChance + method.stats.dodge + method.stats.parry + method.stats.block > unhit then
-      method.stats.overcap = missChance + method.stats.dodge + method.stats.parry + method.stats.block - unhit
-      method.stats.block = unhit - missChance - method.stats.dodge - method.stats.parry
-    end
-  end
 end
 
 function ReforgeLite:FinalizeReforge (data)
@@ -220,7 +112,6 @@ function ReforgeLite:ResetMethod ()
       method.items[i].src, method.items[i].dst = unpack(self.reforgeTable[self.itemData[i].reforge])
     end
   end
-  method.tankingModel = self.pdb.tankingModel
   self:UpdateMethodStats (method)
   self.pdb.method = method
   self:UpdateMethodCategory()
@@ -309,7 +200,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   for src = 1, #self.itemStats do
     if item.stats[src] > 0 then
       for dst = 1, #self.itemStats do
-        if item.stats[dst] == 0 and (data.weights[dst] or 0) > 0 then
+        if item.stats[dst] == 0 then
           local o = self:MakeReforgeOption (item, data, src, dst)
           local pos = o.d1 + o.d2 * 10000
           if not aopt[pos] or aopt[pos].score < o.score then
@@ -430,7 +321,165 @@ function ReforgeLite:ChooseReforgeClassic (data, reforgeOptions, scores, codes)
   return bestCode[1] or bestCode[2] or bestCode[3] or bestCode[4]
 end
 
------------------------------------------------------------------------------
+----------------------------------- SPIRIT-TO-HIT REFORGE ------------------------------
+
+function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
+  if self:IsItemLocked (slot) then
+    local srcstat, dststat, delta1, delta2, dscore = nil, nil, 0, 0, 0
+    local reforge = self.itemData[slot].reforge
+    if reforge then
+      srcstat, dststat = unpack(self.reforgeTable[reforge])
+      local amount = floor (item.stats[srcstat] * REFORGE_COEFF)
+      if srcstat == self.STATS.HIT then
+        delta1 = delta1 - amount
+      elseif srcstat == self.STATS.SPIRIT then
+        delta2 = delta2 - amount
+      else
+        dscore = dscore - data.weights[srcstat] * amount
+      end
+      if dststat == self.STATS.HIT then
+        delta1 = delta1 + amount
+      elseif dststat == self.STATS.SPIRIT then
+        delta2 = delta2 + amount
+      else
+        dscore = dscore + data.weights[dststat] * amount
+      end
+    end
+    return {{src = srcstat, dst = dststat, d1 = delta1, d2 = delta2, score = dscore}}
+  end
+  local opt = {}
+  local best = nil
+  for i = 1, #self.itemStats do
+    if item.stats[i] == 0 and i ~= self.STATS.HIT and i ~= self.STATS.SPIRIT and (best == nil or data.weights[i] > data.weights[best]) then
+      best = i
+    end
+  end
+  if best then
+    local worst = nil
+    local worstScore = 0
+    for i = 1, #self.itemStats do
+      if item.stats[i] > 0 and i ~= self.STATS.HIT and i ~= self.STATS.SPIRIT then
+        local score = (data.weights[best] - data.weights[i]) * floor (item.stats[i] * REFORGE_COEFF)
+        if score > worstScore then
+          worstScore = score
+          worst = i
+        end
+      end
+    end
+    if worst then
+      tinsert (opt, {src = worst, dst = best, d1 = 0, d2 = 0, score = worstScore})
+    else
+      tinsert (opt, {d1 = 0, d2 = 0, score = 0})
+    end
+  else
+    tinsert (opt, {d1 = 0, d2 = 0, score = 0})
+  end
+  if item.stats[self.STATS.HIT] == 0 then
+    for i = 1, #self.itemStats do
+      if item.stats[i] > 0 then
+        local amount = floor (item.stats[i] * REFORGE_COEFF)
+        tinsert (opt, {src = i, dst = self.STATS.HIT, d1 = amount, d2 = (i == self.STATS.SPIRIT and -amount or 0),
+          score = -amount * (i == self.STATS.SPIRIT and 0 or data.weights[i])})
+      end
+    end
+  elseif best then
+    local amount = floor (item.stats[self.STATS.HIT] * REFORGE_COEFF)
+    tinsert (opt, {src = self.STATS.HIT, dst = best, d1 = -amount, d2 = 0, score = data.weights[best] * amount})
+  end
+  if item.stats[self.STATS.SPIRIT] == 0 then
+    for i = 1, #self.itemStats do
+      if item.stats[i] > 0 then
+        local amount = floor (item.stats[i] * REFORGE_COEFF)
+        tinsert (opt, {src = i, dst = self.STATS.SPIRIT, d1 = (i == self.STATS.HIT and -amount or 0), d2 = amount,
+          score = -amount * (i == self.STATS.HIT and 0 or data.weights[i])})
+      end
+    end
+  elseif best then
+    local amount = floor (item.stats[self.STATS.SPIRIT] * REFORGE_COEFF)
+    tinsert (opt, {src = self.STATS.SPIRIT, dst = best, d1 = 0, d2 = -amount, score = data.weights[best] * amount})
+  end
+  return opt
+end
+function ReforgeLite:InitReforgeS2H ()
+  local method = { items = {} }
+  for i = 1, #self.itemData do
+    method.items[i] = {}
+    method.items[i].stats = {}
+    local item = self.itemData[i].item
+    local stats = (item and GetItemStats (item) or {})
+    for j = 1, #self.itemStats do
+      method.items[i].stats[j] = (stats[self.itemStats[j].name] or 0)
+    end
+  end
+
+  local usecap = 1
+  if self.pdb.caps[1].stat == 0 then
+    usecap = 2
+  end
+  local data = {}
+  data.method = method
+  data.weights = DeepCopy (self.pdb.weights)
+  if data.weights[self.STATS.SPIRIT] == 0 then
+    data.weights[self.STATS.SPIRIT] = 1
+  end
+  data.cap = {stat = self.STATS.HIT, points = DeepCopy (self.pdb.caps[usecap].points), init = 0}
+  data.initial = {}
+  for i = 1, #self.itemStats do
+    data.initial[i] = self.itemStats[i].getter ()
+    if i == self.STATS.SPIRIT then
+      data.initial[i] = data.initial[i] / self.spiritBonus
+    end
+    for j = 1, #data.method.items do
+      data.initial[i] = data.initial[i] - data.method.items[j].stats[i]
+    end
+  end
+  for i = 1, #data.method.items do
+    local reforge = self.itemData[i].reforge
+    if reforge then
+      local src, dst = unpack(self.reforgeTable[reforge])
+      local amount = floor (method.items[i].stats[src] * REFORGE_COEFF)
+      data.initial[src] = data.initial[src] + amount
+      data.initial[dst] = data.initial[dst] - amount
+    end
+  end
+  data.initial[self.STATS.HIT] = data.initial[self.STATS.HIT] - Round(self.itemStats[self.STATS.SPIRIT].getter () * self.s2hFactor / 100)
+  data.cap.init = data.initial[self.STATS.HIT]
+  data.spi = Round(data.initial[self.STATS.SPIRIT])
+  for i = 1, #data.method.items do
+    data.cap.init = data.cap.init + data.method.items[i].stats[self.STATS.HIT]
+    data.spi = data.spi + data.method.items[i].stats[self.STATS.SPIRIT]
+  end
+  data.initial[self.STATS.SPIRIT] = Round(data.initial[self.STATS.SPIRIT] * self.spiritBonus)
+
+  data.caps = {{stat = self.STATS.HIT, init = data.cap.init}, {stat = self.STATS.SPIRIT, init = data.spi}}
+
+  return data
+end
+
+function ReforgeLite:ChooseReforgeS2H (data, reforgeOptions, scores, codes)
+  local bestCode = {nil, nil}
+  local bestScore = {0, 0}
+  for k, score in pairs (scores) do
+    self:RunYieldCheck()
+    local code = codes[k]
+    local hit = data.cap.init
+    local spi = data.spi
+    for i = 1, #code do
+      local b = code:byte (i)
+      hit = hit + reforgeOptions[i][b].d1
+      spi = spi + reforgeOptions[i][b].d2
+    end
+    spi = Round(spi * self.spiritBonus)
+    hit = hit + Round(spi * self.s2hFactor / 100)
+    local allow = self:CapAllows (data.cap, hit) and 1 or 2
+    score = score + self:GetCapScore (data.cap, hit) + data.weights[self.STATS.SPIRIT] * spi
+    if bestCode[allow] == nil or score > bestScore[allow] then
+      bestCode[allow] = code
+      bestScore[allow] = score
+    end
+  end
+  return bestCode[1] or bestCode[2]
+end
 
 function ReforgeLite:ComputeReforgeCore (data, reforgeOptions)
   local TABLE_SIZE = 10000
@@ -468,13 +517,9 @@ end
 function ReforgeLite:ComputeReforge (initFunc, optionFunc, chooseFunc)
   local data = self[initFunc] (self)
   local reforgeOptions = {}
-	for i = 1, #self.itemData do
-	if self.itemData[i].reforgeable and not self.itemData[i].lock then
-    reforgeOptions[i] = self[optionFunc](self, data.method.items[i], data, i)
-	else
-    reforgeOptions[i] = { self:MakeReforgeOption(data.method.items[i], data) }
+  for i = 1, #self.itemData do
+    reforgeOptions[i] = self[optionFunc] (self, data.method.items[i], data, i)
   end
-end
 
   self.__chooseLoops = nil
   maxLoops = self.db.speed
@@ -504,7 +549,12 @@ end
 end
 
 function ReforgeLite:Compute ()
-	self:ComputeReforge("InitReforgeClassic", "GetItemReforgeOptions", "ChooseReforgeClassic")
+  if self.s2hFactor > 0 and ((self.pdb.caps[1].stat == self.STATS.HIT and self.pdb.caps[2].stat == 0) or
+                             (self.pdb.caps[2].stat == self.STATS.HIT and self.pdb.caps[1].stat == 0)) then
+    self:ComputeReforge ("InitReforgeS2H", "GetItemReforgeOptionsS2H", "ChooseReforgeS2H")
+  else
+    self:ComputeReforge ("InitReforgeClassic", "GetItemReforgeOptions", "ChooseReforgeClassic")
+  end
 end
 
 function ReforgeLite:StartCompute(btn)
