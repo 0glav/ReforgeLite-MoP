@@ -309,7 +309,7 @@ function ReforgeLite:GetItemReforgeOptions (item, data, slot)
   for src = 1, #self.itemStats do
     if item.stats[src] > 0 then
       for dst = 1, #self.itemStats do
-        if item.stats[dst] == 0 then
+        if item.stats[dst] == 0 and (data.weights[dst] or 0) > 0 then
           local o = self:MakeReforgeOption (item, data, src, dst)
           local pos = o.d1 + o.d2 * 10000
           if not aopt[pos] or aopt[pos].score < o.score then
@@ -485,7 +485,7 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
   end
   if item.stats[self.STATS.HIT] == 0 then
     for i = 1, #self.itemStats do
-      if item.stats[i] > 0 then
+      if item.stats[i] > 0 and (data.weights[self.STATS.HIT] or 0) > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
         tinsert (opt, {src = i, dst = self.STATS.HIT, d1 = amount, d2 = (i == self.STATS.SPIRIT and -amount or 0),
           score = -amount * (i == self.STATS.SPIRIT and 0 or data.weights[i])})
@@ -497,7 +497,7 @@ function ReforgeLite:GetItemReforgeOptionsS2H (item, data, slot)
   end
   if item.stats[self.STATS.SPIRIT] == 0 then
     for i = 1, #self.itemStats do
-      if item.stats[i] > 0 then
+      if item.stats[i] > 0 and (data.weights[self.STATS.SPIRIT] or 0) > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
         tinsert (opt, {src = i, dst = self.STATS.SPIRIT, d1 = (i == self.STATS.HIT and -amount or 0), d2 = amount,
           score = -amount * (i == self.STATS.HIT and 0 or data.weights[i])})
@@ -645,7 +645,7 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
   end
   if item.stats[self.STATS.DODGE] == 0 then
     for i = 1, #self.itemStats do
-      if item.stats[i] > 0 then
+      if item.stats[i] > 0 and (data.weights[self.STATS.DODGE] or 0) > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
         tinsert (opt, {src = i, dst = self.STATS.DODGE, d1 = amount, d2 = (i == self.STATS.PARRY and -amount or 0),
           score = -amount * (i == self.STATS.PARRY and 0 or data.weights[i])})
@@ -657,7 +657,7 @@ function ReforgeLite:GetItemReforgeOptionsTank (item, data, slot)
   end
   if item.stats[self.STATS.PARRY] == 0 then
     for i = 1, #self.itemStats do
-      if item.stats[i] > 0 then
+      if item.stats[i] > 0 and (data.weights[self.STATS.PARRY] or 0) > 0 then
         local amount = floor (item.stats[i] * REFORGE_COEFF)
         tinsert (opt, {src = i, dst = self.STATS.PARRY, d1 = (i == self.STATS.DODGE and -amount or 0), d2 = amount,
           score = -amount * (i == self.STATS.DODGE and 0 or data.weights[i])})
