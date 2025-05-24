@@ -34,8 +34,8 @@ local DefaultDB = {
     openOnReforge = true,
     updateTooltip = true,
     speed = addonTable.MAX_LOOPS * 0.8,
-    activeWindowTitle = {0.6, 0, 0},
-    inactiveWindowTitle = {0.5, 0.5, 0.5},
+    activeWindowTitle = {0.1, 0.1, 0.1, 1},
+    inactiveWindowTitle = {0.2, 0.2, 0.2, 1},
     highlightTooltip = true,
     highlightSourceStatColor = {1, 0.501, 0.501,1},
     highlightDestStatColor = {0, 1, 0.74,1},
@@ -231,6 +231,15 @@ local SHORTNAME = {
     RatingStat (self.STATS.EXP,     "ITEM_MOD_EXPERTISE_RATING",     STAT_EXPERTISE, CR_EXPERTISE, true),
     RatingStat (self.STATS.MASTERY, "ITEM_MOD_MASTERY_RATING_SHORT", STAT_MASTERY,   CR_MASTERY, true)
   }
+    -- Shorten column headers for item table
+	self.itemStats[self.STATS.SPIRIT].tip = "Spi"
+	self.itemStats[self.STATS.DODGE].tip = "Dodge"     
+	self.itemStats[self.STATS.PARRY].tip = "Parry"      
+	self.itemStats[self.STATS.HIT].tip = "Hit"
+	self.itemStats[self.STATS.CRIT].tip = "Crit"
+	self.itemStats[self.STATS.HASTE].tip = "Haste"
+	self.itemStats[self.STATS.EXP].tip = "Exp"
+	self.itemStats[self.STATS.MASTERY].tip = "Mast"
 end
 ReforgeLite:CreateItemStats()
 
@@ -246,101 +255,6 @@ local itemStatsLocale = {
   [49] = ReforgeLite.STATS.MASTERY, -- MASTERY
 }
 --@end-debug@]===]
-
-ReforgeLite.tankingStats = {
-  ["DEATHKNIGHT"] = DeepCopy (ReforgeLite.itemStats),
-  ["WARRIOR"] = {
-	[ReforgeLite.STATS.DODGE] = {
-		tip = STAT_DODGE,
-		long = DODGE_CHANCE,
-		percent = true,
-		mgetter = function(method) return method.stats.dodge or 0 end,
-		getter = GetDodgeChance
-	},
-	[ReforgeLite.STATS.PARRY] = {
-		tip = PARRY,
-		long = PARRY_CHANCE,
-		percent = true,
-		mgetter = function(method) return method.stats.parry or 0 end,
-		getter = GetParryChance
-	},
-	[ReforgeLite.STATS.MASTERY] = {
-		tip = BLOCK,
-		long = BLOCK_CHANCE,
-		percent = true,
-		mgetter = function(method) return method.stats.block or 0 end,
-		getter = function() return 20 + GetMastery() * 1.5 end
-	}
-  },
-  ["PALADIN"] = {
-    [ReforgeLite.STATS.DODGE] = {
-      tip = DODGE,
-      long = DODGE_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.dodge or 0
-      end,
-      getter = GetDodgeChance
-    },
-    [ReforgeLite.STATS.PARRY] = {
-      tip = PARRY,
-      long = PARRY_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.parry or 0
-      end,
-      getter = GetParryChance
-    },
-    [ReforgeLite.STATS.MASTERY] = {
-      tip = BLOCK,
-      long = BLOCK_CHANCE,
-      percent = true,
-      mgetter = function (method)
-        return method.stats.block or 0
-      end,
-      getter = function ()
-        return 5 + GetMastery () * 2.25
-      end
-    }
-  },
-}
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].long = DODGE_CHANCE
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].percent = true
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].mgetter = function (method)
-  return method.stats.dodge
-end
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.DODGE].getter = GetDodgeChance
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].long = PARRY_CHANCE
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].percent = true
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].mgetter = function (method)
-  return method.stats.parry
-end
-ReforgeLite.tankingStats["DEATHKNIGHT"][ReforgeLite.STATS.PARRY].getter = GetParryChance
-
-ReforgeLite.tankingStats["DRUID"] = ReforgeLite.tankingStats["DEATHKNIGHT"]
-
-ReforgeLite.tankingStats["MONK"] = {
-  [ReforgeLite.STATS.DODGE] = {
-    tip = DODGE,
-    long = DODGE_CHANCE,
-    percent = true,
-    mgetter = function(method)
-      return method.stats.dodge or 0
-    end,
-    getter = GetDodgeChance
-  },
-  [ReforgeLite.STATS.MASTERY] = {
-    tip = STAT_MASTERY,
-    long = L["Stagger"],
-    percent = true,
-    mgetter = function(method)
-      return method.stats.mastery or 0
-    end,
-    getter = function()
-      return GetMastery() * 1.5 
-    end
-  }
-}
 
 ReforgeLite.REFORGE_TABLE_BASE = 112
 local reforgeTable = {}
@@ -379,9 +293,6 @@ end
 
 -- Update GetStatScore to handle dual-wield and spell hit
 function ReforgeLite:GetStatScore(stat, value)
-  if self.pdb.tankingModel then
-    return self.pdb.weights[stat] * value
-  end
   local isDualWield = false
   if playerClass == "MONK" then
     local isDualWield = false
@@ -1099,14 +1010,7 @@ function ReforgeLite:UpdateCapPoints (i)
     self.statCaps.cells[base + point][4]:SetText (self.pdb.caps[i].points[point].after)
   end
 end
-function ReforgeLite:SetTankingModel (model)
-  if self.tankingModel then
-    self.pdb.tankingModel = model
-    self.tankingModel:SetChecked (model)
-    self:UpdateStatWeightList ()
-    self:RefreshMethodStats ()
-  end
-end
+
 function ReforgeLite:CollapseStatCaps()
   local caps = DeepCopy(self.pdb.caps)
   table.sort(caps, function(a,b)
@@ -1171,19 +1075,15 @@ end
 function ReforgeLite:CustomPresetsExist()
   return next(ReforgeLite.cdb.customPresets) ~= nil
 end
+
 function ReforgeLite:UpdateStatWeightList ()
   local stats = self.itemStats
-  if self.pdb.tankingModel then
-    stats = self.tankingStats[playerClass] or stats
-  end
+  stats = self.itemStats
   local rows = 0
   for i, v in pairs (stats) do
     rows = rows + 1
   end
   local extraRows = 0
-  if self.pdb.tankingModel then
-    extraRows = 2
-  end
   self.statWeights:ClearCells ()
   self.statWeights.inputs = {}
   rows = ceil (rows / 2) + extraRows
@@ -1193,38 +1093,7 @@ function ReforgeLite:UpdateStatWeightList ()
   if self.statWeights.rows < rows then
     self.statWeights:AddRow (1, rows - self.statWeights.rows)
   end
-  if self.pdb.tankingModel then
-    self.statWeights.buffs = {}
-    self.statWeights.buffs.kings = GUI:CreateCheckButton (self.statWeights, C_Spell.GetSpellName(20217), self.pdb.buffs.kings, function (val)
-      self.pdb.buffs.kings = val
-      self:RefreshMethodStats ()
-    end)
-    self.statWeights.buffs.strength = GUI:CreateCheckButton (self.statWeights, C_Spell.GetSpellName(57330), self.pdb.buffs.strength, function (val)
-      self.pdb.buffs.strength = val
-      self:RefreshMethodStats ()
-    end)
-    self.statWeights:SetCell (1, 1, self.statWeights.buffs.kings, "LEFT")
-    self.statWeights:SetCell (1, 3, self.statWeights.buffs.strength, "LEFT")
-    self.statWeights.buffs.flask = GUI:CreateDropdown (self.statWeights,
-      {{value = 0, name = L["Other/No flask"]}, {value = 1, name = "300" .. ITEM_MOD_STRENGTH_SHORT},
-       {value = 2, name = "225" .. ITEM_MOD_MASTERY_RATING_SHORT}}, {
-        default = self.pdb.buffs.flask or 0,
-        width = 125,
-        setter = function (_,val)
-          self.pdb.buffs.flask = (val ~= 0 and val)
-          self:RefreshMethodStats ()
-        end,
-    })
-    self.statWeights.buffs.food = GUI:CreateDropdown (self.statWeights,
-      {{value = 0, name = L["Other/No food"]}, {value = 1, name = "90" .. ITEM_MOD_MASTERY_RATING_SHORT},
-       {value = 2, name = "90" .. ITEM_MOD_DODGE_RATING_SHORT}, {value = 3, name = "90" .. ITEM_MOD_PARRY_RATING_SHORT},
-       {value = 4, name = "90" .. ITEM_MOD_STRENGTH_SHORT},{value = 5, name = "40" .. ITEM_MOD_STRENGTH_SHORT}}, {default = self.pdb.buffs.food or 0, setter =  function (_,val)
-        self.pdb.buffs.food = (val ~= 0 and val)
-        self:RefreshMethodStats ()
-      end, width = 125})
-    self.statWeights:SetCell (2, 1, self.statWeights.buffs.flask, "LEFT", -10, -10)
-    self.statWeights:SetCell (2, 3, self.statWeights.buffs.food, "LEFT", -10, -10)
-  end
+
   local pos = 0
   for i, v in pairs (stats) do
     pos = pos + 1
@@ -1245,51 +1114,10 @@ function ReforgeLite:UpdateStatWeightList ()
       end
     end)
     self.statWeights:SetCell (row, col + 1, self.statWeights.inputs[i])
-  end
-
-  if self.pdb.tankingModel then
-    self.statCaps:Hide2 ()
-    self:SetAnchor (self.computeButton, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -10)
-  else
-    self.statCaps:Show2 ()
-    self:SetAnchor (self.computeButton, "TOPLEFT", self.statCaps, "BOTTOMLEFT", 0, -10)
-  end
-
-  self:UpdateBuffs ()
-  self:UpdateContentSize ()
-end
-function ReforgeLite:UpdateBuffs ()
-  if self.pdb.tankingModel then
-    local kings, strength, flask, food = self:GetPlayerBuffs ()
-    if kings then
-      self.statWeights.buffs.kings:SetChecked (true)
-      self.statWeights.buffs.kings:Disable ()
-    else
-      self.statWeights.buffs.kings:SetChecked (self.pdb.buffs.kings)
-      self.statWeights.buffs.kings:Enable ()
-    end
-    if strength then
-      self.statWeights.buffs.strength:SetChecked (true)
-      self.statWeights.buffs.strength:Disable ()
-    else
-      self.statWeights.buffs.strength:SetChecked (self.pdb.buffs.strength)
-      self.statWeights.buffs.strength:Enable ()
-    end
-    if flask then
-      self.statWeights.buffs.flask:SetValue (flask)
-      self.statWeights.buffs.flask:DisableDropdown()
-    else
-      self.statWeights.buffs.flask:SetValue (self.pdb.buffs.flask or 0)
-      self.statWeights.buffs.flask:EnableDropdown()
-    end
-    if food then
-      self.statWeights.buffs.food:SetValue (food)
-      self.statWeights.buffs.food:DisableDropdown()
-    else
-      self.statWeights.buffs.food:SetValue (self.pdb.buffs.food or 0)
-      self.statWeights.buffs.food:EnableDropdown()
-    end
-  end
+	self.statCaps:Show2()
+	self:SetAnchor(self.computeButton, "TOPLEFT", self.statCaps, "BOTTOMLEFT", 0, -10)
+	self:UpdateContentSize ()
+	end
 end
 
 function ReforgeLite:CreateOptionList ()
@@ -1337,19 +1165,6 @@ function ReforgeLite:CreateOptionList ()
   self.convertSpirit.text:SetPoint ("LEFT", self.pawnButton, "RIGHT", 8, 0)
   self.convertSpirit.text:SetText (L["Spirit to hit"] .. ": "..PERCENTAGE_STRING:format(0))
 
-  if playerClass == "PALADIN" or playerClass == "WARRIOR" or playerClass == "DEATHKNIGHT" then
-    self.tankingModel = GUI:CreateCheckButton (self.content, STAT_AVOIDANCE .. " " ..PARENS_TEMPLATE:format(localeClass),
-        self.pdb.tankingModel, function (val)
-      self.pdb.tankingModel = val
-      self:UpdateStatWeightList ()
-      self:RefreshMethodStats ()
-    end)
-    self.statWeightsCategory:AddFrame (self.tankingModel)
-    self:SetAnchor (self.tankingModel, "TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -5)
-  else
-    self.pdb.tankingModel = nil
-  end
-
   local levelList = {
     {value=0,name=("%s (+%d)"):format(PVP, 0)},
     {value=2,name=("%s (+%d)"):format(LFG_TYPE_HEROIC_DUNGEON, 2)},
@@ -1364,9 +1179,8 @@ function ReforgeLite:CreateOptionList ()
   self.statWeightsCategory:AddFrame(self.targetLevel)
   self.targetLevel.text = self.targetLevel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   self.targetLevel.text:SetText(STAT_TARGET_LEVEL)
-  self:SetAnchor(self.targetLevel.text, "TOPLEFT", self.tankingModel or self.pawnButton, "BOTTOMLEFT", 0, -8)
-  self.targetLevel:SetPoint("BOTTOMLEFT", self.targetLevel.text, "BOTTOMLEFT", self.targetLevel.text:GetStringWidth(), -20)
-
+  self.targetLevel.text:SetPoint("TOPLEFT", self.pawnButton, "BOTTOMLEFT", 0, -10)
+  self.targetLevel:SetPoint("TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -4)
   self.buffsContextMenu = CreateFrame("DropdownButton", nil, self.content, "WowStyle1FilterDropdownTemplate")
   self.buffsContextMenu:SetText(L["Buffs"])
   self.buffsContextMenu.resizeToTextPadding = 25
@@ -1412,14 +1226,14 @@ function ReforgeLite:CreateOptionList ()
   end)
 
   self.statWeights = GUI:CreateTable (ceil (#self.itemStats / 2), 4)
-  self:SetAnchor (self.statWeights, "TOPLEFT", self.targetLevel.text, "BOTTOMLEFT", 0, -8)
+  self:SetAnchor(self.statWeights, "TOPLEFT", self.targetLevel, "BOTTOMLEFT", 0, -2)
   self.statWeights:SetPoint ("RIGHT", -5, 0)
   self.statWeightsCategory:AddFrame (self.statWeights)
   self.statWeights:SetRowHeight (ITEM_SIZE + 2)
 
   self.statCaps = GUI:CreateTable (2, 4, nil, ITEM_SIZE + 2)
   self.statWeightsCategory:AddFrame (self.statCaps)
-  self:SetAnchor (self.statCaps, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -10)
+  self:SetAnchor (self.statCaps, "TOPLEFT", self.statWeights, "BOTTOMLEFT", 0, -4)
   self.statCaps:SetPoint ("RIGHT", -5, 0)
   self.statCaps:SetRowHeight (ITEM_SIZE + 2)
   self.statCaps:SetColumnWidth (1, 100)
@@ -1668,36 +1482,6 @@ end
 function ReforgeLite:GetCurrentScore()
   local score = 0
   local unhit = 100 + 0.8 * max(0, self.pdb.targetLevel)
-  if self.pdb.tankingModel then
-    local dodge = GetDodgeChance()
-    local parry = GetParryChance()
-    score = dodge * self.pdb.weights[self.STATS.DODGE] + parry * self.pdb.weights[self.STATS.PARRY]
-    if playerClass == "WARRIOR" then
-      local mastery = GetMastery()
-      local block = 20 + mastery * 1.5
-      if missChance + dodge + parry + block > unhit then
-        block = unhit - missChance - dodge - parry
-      end
-      score = score + block * self.pdb.weights[self.STATS.MASTERY]
-    elseif playerClass == "PALADIN" then
-      local mastery = GetMastery()
-      local block = 5 + mastery * 2.25
-      if missChance + dodge + parry + block > unhit then
-        block = unhit - missChance - dodge - parry
-      end
-      score = score + block * self.pdb.weights[self.STATS.MASTERY]
-    else
-      for i = 1, #self.itemStats do
-        if i ~= self.STATS.DODGE and i ~= self.STATS.PARRY then
-          score = score + self:GetStatScore(i, self.itemStats[i].getter())
-        end
-      end
-    end
-  else
-    for i = 1, #self.itemStats do
-      score = score + self:GetStatScore(i, self.itemStats[i].getter())
-    end
-  end
   return RoundToSignificantDigits(score, 2)
 end
 
@@ -1801,26 +1585,6 @@ function ReforgeLite:RefreshMethodStats (relax)
   end
   if self.pdb.method then
     if self.methodStats then
-      if self.pdb.tankingModel then
-        self.methodTank:Show2 ()
-        self.methodTank:ClearLines ()
-        local ctc = missChance
-        self.methodTank:PrintLine ("%s: %.2f%%", DODGE_CHANCE, self.pdb.method.stats.dodge or 0)
-        ctc = ctc + (self.pdb.method.stats.dodge or 0)
-        self.methodTank:PrintLine ("%s: %.2f%%", PARRY_CHANCE, self.pdb.method.stats.parry or 0)
-        ctc = ctc + (self.pdb.method.stats.parry or 0)
-        if playerClass == "WARRIOR" or playerClass == "PALADIN" then
-          self.methodTank:PrintLine ("%s: %.2f%%", BLOCK_CHANCE, (self.pdb.method.stats.block or 0) +
-                                                                      (self.pdb.method.stats.overcap or 0))
-          ctc = ctc + (self.pdb.method.stats.block or 0) + (self.pdb.method.stats.overcap or 0)
-        end
-        if playerClass == "WARRIOR" then
-          self.methodTank:PrintLine ("%s: %.2f%%", L["Crit block"], self.pdb.method.stats.critBlock or 0)
-        end
-        self.methodTank:PrintLine ("%s: %.2f%%", TOTAL, ctc)
-      else
-        self.methodTank:Hide2 ()
-      end
       self.methodStats.score:SetText (score)
       SetTextDelta (self.methodStats.scoreDelta, score, self:GetCurrentScore ())
       for i, v in ipairs (self.itemStats) do
@@ -2052,8 +1816,6 @@ self.s2hFactor = 0
   else
     self.convertSpirit.text:Hide ()
   end
-
-  self:UpdateBuffs ()
   self:RefreshMethodStats ()
 end
 
@@ -2527,17 +2289,14 @@ function ReforgeLite:ACTIVE_TALENT_GROUP_CHANGED()
   local currentSettings = {
     caps = DeepCopy(self.pdb.caps),
     weights = DeepCopy(self.pdb.weights),
-    tankingModel = self.pdb.tankingModel
   }
 
   if self.pdb.prevSpecSettings then
     if self.initialized then
       self:SetStatWeights(self.pdb.prevSpecSettings.weights, self.pdb.prevSpecSettings.caps or {})
-      self:SetTankingModel(self.pdb.prevSpecSettings.tankingModel)
     else
       self.pdb.weights = DeepCopy(self.pdb.prevSpecSettings.weights)
       self.pdb.caps = DeepCopy(self.pdb.prevSpecSettings.caps)
-      self.pdb.tankingModel = self.pdb.prevSpecSettings.tankingModel
     end
   end
 
