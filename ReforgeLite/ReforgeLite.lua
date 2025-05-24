@@ -291,7 +291,7 @@ function ReforgeLite:GetCapScore (cap, value)
   return score
 end
 
--- Update GetStatScore to handle dual-wield and spell hit
+
 function ReforgeLite:GetStatScore(stat, value)
   local isDualWield = false
   if playerClass == "MONK" then
@@ -302,16 +302,13 @@ function ReforgeLite:GetStatScore(stat, value)
         isDualWield = true
       end
     else
-    -- Fallback: Check for dual-wield weapons (Windwalker) or specific abilities
       local mainHand, offHand = GetInventoryItemLink("player", 16), GetInventoryItemLink("player", 17)
       if mainHand and offHand then
-    -- Ensure offHand is a weapon, not an off-hand item (e.g., frill for Mistweaver)
         local _, _, _, _, _, _, _, _, offHandType = GetItemInfo(offHand)
         if offHandType == "Weapon" then
-          isDualWield = true -- Likely Windwalker
+          isDualWield = true 
         end
       end
-    -- Optional: Confirm with ability check (Tiger Palm is Windwalker-specific)
       if IsSpellKnown(100780) then -- Tiger Palm
         local mainHand, offHand = GetInventoryItemLink("player", 16), GetInventoryItemLink("player", 17)
         if mainHand and offHand and offHandType == "Weapon" then
