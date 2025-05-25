@@ -221,11 +221,38 @@ function ReforgeLite:GetNeededExpertiseHard ()
     end
   end
 end
+function ReforgeLite:GetSpellHasteBonus()
+    local hastePercent = 0
+    if GetCombatRatingBonus and CR_HASTE_SPELL then
+        hastePercent = GetCombatRatingBonus(CR_HASTE_SPELL) or 0
+    elseif GetSpellHaste then
+        hastePercent = GetSpellHaste() or 0
+    else
+        local hasteRating = GetCombatRating and GetCombatRating(CR_HASTE_SPELL) or 0
+        local level = UnitLevel("player")
+        local hastePerPoint = ReforgeLiteScalingTable[ReforgeLite.STATS.HASTE][level] or 1
+        hastePercent = hasteRating / hastePerPoint
+    end
+    return 1 + (hastePercent / 100)
+end
+function ReforgeLite:GetRangedHasteBonus()
+    local hastePercent = 0
+    if GetCombatRatingBonus and CR_HASTE_RANGED then
+        hastePercent = GetCombatRatingBonus(CR_HASTE_RANGED) or 0
+    elseif GetSpellHaste then
+        hastePercent = GetSpellHaste() or 0
+    else
+        local hasteRating = GetCombatRating and GetCombatRating(CR_HASTE_RANGED) or 0
+        local level = UnitLevel("player")
+        local hastePerPoint = ReforgeLiteScalingTable[ReforgeLite.STATS.HASTE][level] or 1
+        hastePercent = hasteRating / hastePerPoint
+    end
+    return 1 + (hastePercent / 100) 
+end
 
 local function CreateIconMarkup(icon)
   if not icon then
-    print("|cff33ff99ReforgeLite|r: Missing icon in CreateIconMarkup")
-    icon = 134400 -- Default question mark icon
+    icon = 134400 
   end
   return CreateSimpleTextureMarkup(icon, 16, 16) .. " "
 end
@@ -335,14 +362,14 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(136081), 18.74, 2, C_Spell.GetSpellName(774)),
-      getter = GetSpellHasteRequired(12.51),
+      name = nameFormatWithTicks:format(CreateIconMarkup(136081), 20.01, 1, C_Spell.GetSpellName(774)),
+      getter = GetSpellHasteRequired(20.01),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 21.43, 1, C_Spell.GetSpellName(48438) .. " / " .. C_Spell.GetSpellName(81269)),
-      getter = GetSpellHasteRequired(21.4345),
+      name = nameFormatWithTicks:format(CreateIconMarkup(236153)..CreateIconMarkup(134222), 25.0, 1, C_Spell.GetSpellName(48438) .. " / " .. C_Spell.GetSpellName(81269)),
+      getter = GetSpellHasteRequired(25.0),
     })
   elseif addonTable.playerClass == "PRIEST" then
     local devouringPlague, devouringPlagueMarkup = C_Spell.GetSpellName(2944), CreateIconMarkup(252997)
@@ -350,64 +377,51 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(devouringPlagueMarkup, 18.74, 2, devouringPlague),
-      getter = GetSpellHasteRequired(18.74),
+      name = nameFormatWithTicks:format(devouringPlagueMarkup, 33.33, 1, devouringPlague),
+      getter = GetSpellHasteRequired(33.33),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(shadowWordPainMarkup, 24.97, 2, shadowWordPain),
-      getter = GetSpellHasteRequired(24.97),
+      name = nameFormatWithTicks:format(shadowWordPainMarkup, 20.0, 1, shadowWordPain),
+      getter = GetSpellHasteRequired(20.0),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.ThirdHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(135978), 30.01, 2, C_Spell.GetSpellName(589)),
-      getter = GetSpellHasteRequired(30.01),
+      name = nameFormatWithTicks:format(devouringPlagueMarkup, 66.67, 2, devouringPlague),
+      getter = GetSpellHasteRequired(66.67),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FourthHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(devouringPlagueMarkup, 31.26, 3, devouringPlague),
-      getter = GetSpellHasteRequired(31.26),
-    })
-    tinsert(ReforgeLite.capPresets, {
-      value = CAPS.FifthHasteBreak,
-      category = StatHaste,
-      name = nameFormatWithTicks:format(shadowWordPainMarkup, 41.67, 3, shadowWordPain),
-      getter = GetSpellHasteRequired(41.675),
+      name = nameFormatWithTicks:format(shadowWordPainMarkup, 40.0, 2, shadowWordPain),
+      getter = GetSpellHasteRequired(40.0),
     })
   elseif addonTable.playerClass == "MAGE" then
     local combustion, combustionMarkup = C_Spell.GetSpellName(11129), CreateIconMarkup(135824)
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(combustionMarkup, 15, 2, combustion),
-      getter = GetSpellHasteRequired(15.01),
+      name = nameFormatWithTicks:format(combustionMarkup, 20.0, 1, combustion),
+      getter = GetSpellHasteRequired(20.0),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(combustionMarkup, 25, 3, combustion),
-      getter = GetSpellHasteRequired(25.08),
+      name = nameFormatWithTicks:format(combustionMarkup, 40.0, 2, combustion),
+      getter = GetSpellHasteRequired(40.0),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.ThirdHasteBreak,
       category = StatHaste,
-      name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1), C_Spell.GetSpellName(30451)),
+      name = ("%s %s %s"):format(CreateIconMarkup(135735), D_SECONDS:format(1.5), C_Spell.GetSpellName(30451)),
       getter = function()
-        local percentNeeded = 13.86
-        local firelordCount = GetActiveItemSet()[931] or 0
+        local percentNeeded = 66.67
         if addonTable.playerRace == "Goblin" then
-          if firelordCount >= 4 then
-            percentNeeded = 2.43
-          else
-            percentNeeded = 12.68
-          end
-        elseif firelordCount >= 4 then
-          percentNeeded = 3.459
+          percentNeeded = 66.67 - 1
         end
-        return ceil(ReforgeLite:RatingPerPoint (ReforgeLite.STATS.HASTE) * percentNeeded)
+        return ceil(ReforgeLite:RatingPerPoint(ReforgeLite.STATS.HASTE) * percentNeeded)
       end,
     })
   elseif addonTable.playerClass == "HUNTER" then
@@ -421,27 +435,72 @@ do
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(462328), 12.51, 1, C_Spell.GetSpellName(51730)),
-      getter = GetSpellHasteRequired(12.51),
+      name = nameFormatWithTicks:format(CreateIconMarkup(462328), 20.0, 1, C_Spell.GetSpellName(51730)),
+      getter = GetSpellHasteRequired(20.0),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(252995), 21.44, 2, C_Spell.GetSpellName(61295)),
-      getter = GetSpellHasteRequired(21.4345),
+      name = nameFormatWithTicks:format(CreateIconMarkup(252995), 20.0, 1, C_Spell.GetSpellName(61295)),
+      getter = GetSpellHasteRequired(20.0),
     })
   elseif addonTable.playerClass == "MONK" then
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.FirstHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(620831), 12.51, 1, C_Spell.GetSpellName(115151)), -- Renewing Mist
-      getter = GetSpellHasteRequired(12.51),
+      name = nameFormatWithTicks:format(CreateIconMarkup(620831), 11.11, 1, C_Spell.GetSpellName(115151)),
+      getter = GetSpellHasteRequired(11.11),
     })
     tinsert(ReforgeLite.capPresets, {
       value = CAPS.SecondHasteBreak,
       category = StatHaste,
-      name = nameFormatWithTicks:format(CreateIconMarkup(620831), 25.02, 2, C_Spell.GetSpellName(115151)), -- Renewing Mist
-      getter = GetSpellHasteRequired(25.02),
+      name = nameFormatWithTicks:format(CreateIconMarkup(620831), 22.22, 2, C_Spell.GetSpellName(115151)),
+      getter = GetSpellHasteRequired(22.22),
+    })
+  elseif addonTable.playerClass == "WARLOCK" then
+    local corruption = C_Spell.GetSpellName(172)
+    local unstableAffliction = C_Spell.GetSpellName(30108)
+    local immolate = C_Spell.GetSpellName(348)
+    local doom = C_Spell.GetSpellName(603)
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(136122), 16.67, 1, corruption .. " / " .. unstableAffliction),
+      getter = GetSpellHasteRequired(16.67),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(135817), 20.0, 1, immolate),
+      getter = GetSpellHasteRequired(20.0),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.ThirdHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(136145), 25.0, 1, doom),
+      getter = GetSpellHasteRequired(25.0),
+    })
+  elseif addonTable.playerClass == "DEATHKNIGHT" then
+    local frostFever = C_Spell.GetSpellName(55095)
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(135833), 14.29, 1, frostFever),
+      getter = GetSpellHasteRequired(14.29),
+    })
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.SecondHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(135833), 28.57, 2, frostFever),
+      getter = GetSpellHasteRequired(28.57),
+    })
+  elseif addonTable.playerClass == "PALADIN" then
+    local holyRadiance = C_Spell.GetSpellName(82327)
+    tinsert(ReforgeLite.capPresets, {
+      value = CAPS.FirstHasteBreak,
+      category = StatHaste,
+      name = nameFormatWithTicks:format(CreateIconMarkup(461859), 20.0, 1, holyRadiance),
+      getter = GetSpellHasteRequired(20.0),
     })
   end
 end
