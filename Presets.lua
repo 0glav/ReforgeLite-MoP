@@ -638,10 +638,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          120, -- Crit
+          90, -- Crit
           160, -- Haste
           50,  -- Expertise
-          90   -- Mastery
+          120   -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -652,10 +652,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          130, -- Crit
-          170, -- Haste
-          60,  -- Expertise
-          100  -- Mastery
+          80, -- Crit
+          150, -- Haste
+          45,  -- Expertise
+          120  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -666,10 +666,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          140, -- Crit
-          180, -- Haste
-          70,  -- Expertise
-          80   -- Mastery
+          70, -- Crit
+          140, -- Haste
+          40,  -- Expertise
+          100   -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -896,9 +896,9 @@ local presets = {
           0,   -- Parry
           200, -- Hit
           150, -- Crit
-          80,  -- Haste
-          0,   -- Expertise
-          110  -- Mastery
+          110,  -- Haste
+          200,   -- Expertise
+          80  -- Mastery
         },
         caps = RangedCaps,
       },
@@ -909,10 +909,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          160, -- Crit
-          90,  -- Haste
-          0,   -- Expertise
-          100  -- Mastery
+          140, -- Crit
+          100,  -- Haste
+          190,   -- Expertise
+          70  -- Mastery
         },
         caps = RangedCaps,
       },
@@ -923,10 +923,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          170, -- Crit
-          100, -- Haste
-          0,   -- Expertise
-          90   -- Mastery
+          130, -- Crit
+          90, -- Haste
+          180,   -- Expertise
+          60   -- Mastery
         },
         caps = RangedCaps,
       },
@@ -941,7 +941,7 @@ local presets = {
           200, -- Hit
           150, -- Crit
           110, -- Haste
-          0,   -- Expertise
+          200,   -- Expertise
           80   -- Mastery
         },
         caps = RangedCaps,
@@ -955,7 +955,7 @@ local presets = {
           190, -- Hit
           160, -- Crit
           120, -- Haste
-          0,   -- Expertise
+          190,   -- Expertise
           70   -- Mastery
         },
         caps = RangedCaps,
@@ -969,7 +969,7 @@ local presets = {
           180, -- Hit
           170, -- Crit
           130, -- Haste
-          0,   -- Expertise
+          180,   -- Expertise
           60   -- Mastery
         },
         caps = RangedCaps,
@@ -984,9 +984,9 @@ local presets = {
           0,   -- Parry
           200, -- Hit
           110, -- Crit
-          80,  -- Haste
-          0,   -- Expertise
-          40   -- Mastery
+          150,  -- Haste
+          200,   -- Expertise
+          80   -- Mastery
         },
         caps = {
           HitCap,
@@ -1009,10 +1009,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          120, -- Crit
-          90,  -- Haste
-          0,   -- Expertise
-          50   -- Mastery
+          100, -- Crit
+          140,  -- Haste
+          190,   -- Expertise
+          70   -- Mastery
         },
         caps = {
           HitCap,
@@ -1035,9 +1035,9 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          130, -- Crit
-          100, -- Haste
-          0,   -- Expertise
+          90, -- Crit
+          130, -- Haste
+          180,   -- Expertise
           60   -- Mastery
         },
         caps = {
@@ -1145,8 +1145,8 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          140, -- Crit
-          160, -- Haste
+          160, -- Crit
+          140, -- Haste
           0,   -- Expertise
           120  -- Mastery
         },
@@ -1172,7 +1172,7 @@ local presets = {
           0,   -- Parry
           190, -- Hit
           150, -- Crit
-          170, -- Haste
+          130, -- Haste
           0,   -- Expertise
           110  -- Mastery
         },
@@ -1197,8 +1197,8 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          160, -- Crit
-          180, -- Haste
+          140, -- Crit
+          120, -- Haste
           0,   -- Expertise
           100  -- Mastery
         },
@@ -1225,10 +1225,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          180, -- Crit
-          140, -- Haste
+          140, -- Crit
+          160, -- Haste
           0,   -- Expertise
-          130  -- Mastery
+          120  -- Mastery
         },
         caps = {
           HitCapSpell,
@@ -1251,10 +1251,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          190, -- Crit
+          130, -- Crit
           150, -- Haste
           0,   -- Expertise
-          120  -- Mastery
+          110  -- Mastery
         },
         caps = {
           HitCapSpell,
@@ -1277,10 +1277,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          200, -- Crit
-          160, -- Haste
+          120, -- Crit
+          140, -- Haste
           0,   -- Expertise
-          110  -- Mastery
+          100  -- Mastery
         },
         caps = {
           HitCapSpell,
@@ -1395,10 +1395,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          135, -- Crit
-          110, -- Haste
+          120, -- Crit
+          160, -- Haste
           180, -- Expertise
-          150  -- Mastery
+          140  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -1409,10 +1409,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          145, -- Crit
-          120, -- Haste
+          110, -- Crit
+          150, -- Haste
           170, -- Expertise
-          140  -- Mastery
+          130  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -1423,10 +1423,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          155, -- Crit
-          130, -- Haste
+          100, -- Crit
+          140, -- Haste
           160, -- Expertise
-          130  -- Mastery
+          120  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -1529,10 +1529,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          100, -- Crit
+          130, -- Crit
           140, -- Haste
           0,   -- Expertise
-          130  -- Mastery
+          100  -- Mastery
         },
         caps = CasterCaps,
       },
@@ -1543,10 +1543,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          110, -- Crit
-          150, -- Haste
+          120, -- Crit
+          130, -- Haste
           0,   -- Expertise
-          120  -- Mastery
+          90  -- Mastery
         },
         caps = CasterCaps,
       },
@@ -1557,10 +1557,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          120, -- Crit
-          160, -- Haste
+          110, -- Crit
+          120, -- Haste
           0,   -- Expertise
-          110  -- Mastery
+          80  -- Mastery
         },
         caps = CasterCaps,
       },
@@ -1943,9 +1943,9 @@ local presets = {
           0,   -- Parry
           250, -- Hit
           120, -- Crit
-          80,  -- Haste
+          160,  -- Haste
           190, -- Expertise
-          150  -- Mastery
+          140  -- Mastery
         },
         caps = {
           {
@@ -1976,10 +1976,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           240, -- Hit
-          130, -- Crit
-          90,  -- Haste
+          110, -- Crit
+          150,  -- Haste
           180, -- Expertise
-          140  -- Mastery
+          130  -- Mastery
         },
         caps = {
           {
@@ -2010,10 +2010,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           230, -- Hit
-          140, -- Crit
-          100, -- Haste
+          100, -- Crit
+          140, -- Haste
           170, -- Expertise
-          130  -- Mastery
+          120  -- Mastery
         },
         caps = {
           {
@@ -2047,9 +2047,9 @@ local presets = {
           0,   -- Parry
           0,   -- Hit
           100, -- Crit
-          100, -- Haste
+          120, -- Haste
           0,   -- Expertise
-          100  -- Mastery
+          110  -- Mastery
         },
         caps = {
           {
@@ -2071,10 +2071,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           0,   -- Hit
-          110, -- Crit
+          90, -- Crit
           110, -- Haste
           0,   -- Expertise
-          90   -- Mastery
+          100   -- Mastery
         },
         caps = {
           {
@@ -2096,10 +2096,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           0,   -- Hit
-          120, -- Crit
-          120, -- Haste
+          80, -- Crit
+          100, -- Haste
           0,   -- Expertise
-          80   -- Mastery
+          90   -- Mastery
         },
         caps = {
           {
@@ -2125,10 +2125,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          140, -- Crit
+          120, -- Crit
           160, -- Haste
           0,   -- Expertise
-          120  -- Mastery
+          140  -- Mastery
         },
         caps = CasterCaps,
       },
@@ -2139,10 +2139,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          150, -- Crit
-          170, -- Haste
+          110, -- Crit
+          150, -- Haste
           0,   -- Expertise
-          110  -- Mastery
+          130  -- Mastery
         },
         caps = CasterCaps,
       },
@@ -2153,10 +2153,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          160, -- Crit
-          180, -- Haste
+          100, -- Crit
+          140, -- Haste
           0,   -- Expertise
-          100  -- Mastery
+          120  -- Mastery
         },
         caps = CasterCaps,
       },
@@ -2213,8 +2213,8 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          140, -- Crit
-          160, -- Haste
+          160, -- Crit
+          140, -- Haste
           0,   -- Expertise
           120  -- Mastery
         },
@@ -2228,7 +2228,7 @@ local presets = {
           0,   -- Parry
           190, -- Hit
           150, -- Crit
-          170, -- Haste
+          130, -- Haste
           0,   -- Expertise
           110  -- Mastery
         },
@@ -2241,8 +2241,8 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          160, -- Crit
-          180, -- Haste
+          140, -- Crit
+          120, -- Haste
           0,   -- Expertise
           100  -- Mastery
         },
@@ -2260,9 +2260,9 @@ local presets = {
           0,   -- Parry
           200, -- Hit
           150, -- Crit
-          100, -- Haste
+          130, -- Haste
           200, -- Expertise
-          120  -- Mastery
+          110  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2273,10 +2273,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          160, -- Crit
-          110, -- Haste
+          140, -- Crit
+          120, -- Haste
           190, -- Expertise
-          110  -- Mastery
+          100  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2287,10 +2287,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          170, -- Crit
-          120, -- Haste
+          130, -- Crit
+          110, -- Haste
           180, -- Expertise
-          100  -- Mastery
+          90  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2304,9 +2304,9 @@ local presets = {
           0,   -- Parry
           200, -- Hit
           150, -- Crit
-          100, -- Haste
+          130, -- Haste
           180, -- Expertise
-          130  -- Mastery
+          110  -- Mastery
         },
         caps = {
           {
@@ -2329,10 +2329,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          160, -- Crit
-          110, -- Haste
+          140, -- Crit
+          120, -- Haste
           170, -- Expertise
-          120  -- Mastery
+          100  -- Mastery
         },
         caps = {
           {
@@ -2355,10 +2355,10 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          170, -- Crit
-          120, -- Haste
+          130, -- Crit
+          110, -- Haste
           160, -- Expertise
-          110  -- Mastery
+          90  -- Mastery
         },
         caps = {
           {
@@ -2382,11 +2382,11 @@ local presets = {
           0,  -- Spirit
           100, -- Dodge
           100, -- Parry
-          150, -- Hit
+          170, -- Hit
           50,  -- Crit
-          80,  -- Haste
-          120, -- Expertise
-          200  -- Mastery
+          160,  -- Haste
+          170, -- Expertise
+          140  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2396,11 +2396,11 @@ local presets = {
           0,  -- Spirit
           90,  -- Dodge
           90,  -- Parry
-          140, -- Hit
-          60,  -- Crit
-          90,  -- Haste
-          110, -- Expertise
-          180  -- Mastery
+          160, -- Hit
+          45,  -- Crit
+          150,  -- Haste
+          160, -- Expertise
+          130  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2410,11 +2410,11 @@ local presets = {
           0,  -- Spirit
           80,  -- Dodge
           80,  -- Parry
-          130, -- Hit
-          70,  -- Crit
-          100, -- Haste
-          100, -- Expertise
-          170  -- Mastery
+          150, -- Hit
+          40,  -- Crit
+          140, -- Haste
+          150, -- Expertise
+          120  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2428,11 +2428,11 @@ local presets = {
           0,   -- Spirit
           110, -- Dodge
           0,   -- Parry
-          150, -- Hit
+          175, -- Hit
           50,  -- Crit
-          80,  -- Haste
+          160,  -- Haste
           120, -- Expertise
-          200  -- Mastery
+          175  -- Mastery
         },
         caps = {
           {
@@ -2459,13 +2459,13 @@ local presets = {
         targetLevel = 2,
         weights = {
           0,   -- Spirit
-          120, -- Dodge
+          100, -- Dodge
           0,   -- Parry
-          100, -- Hit
-          40,  -- Crit
-          60,  -- Haste
-          100, -- Expertise
-          180  -- Mastery
+          160, -- Hit
+          45,  -- Crit
+          150,  -- Haste
+          160, -- Expertise
+          130  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2473,13 +2473,13 @@ local presets = {
         targetLevel = 2,
         weights = {
           0,   -- Spirit
-          100, -- Dodge
+          90, -- Dodge
           0,   -- Parry
-          110, -- Hit
-          50,  -- Crit
-          70,  -- Haste
-          110, -- Expertise
-          170  -- Mastery
+          150, -- Hit
+          40,  -- Crit
+          140,  -- Haste
+          150, -- Expertise
+          120  -- Mastery
         },
         caps = MeleeCaps,
       },
@@ -2497,7 +2497,18 @@ local presets = {
           0,   -- Expertise
           110  -- Mastery
         },
-        caps = CasterCaps,
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.FirstHasteBreak,
+                after = 90,
+              },
+            },
+          },
+        },
       },
       [LFG_TYPE_DUNGEON] = {
         targetLevel = 2,
@@ -2511,7 +2522,18 @@ local presets = {
           0,   -- Expertise
           100  -- Mastery
         },
-        caps = CasterCaps,
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.FirstHasteBreak,
+                after = 90,
+              },
+            },
+          },
+        },
       },
       [L["Challenge Mode"]] = {
         targetLevel = 2,
@@ -2525,7 +2547,18 @@ local presets = {
           0,   -- Expertise
           90   -- Mastery
         },
-        caps = CasterCaps,
+        caps = {
+          {
+            stat = StatHaste,
+            points = {
+              {
+                method = AtLeast,
+                preset = CAPS.FirstHasteBreak,
+                after = 90,
+              },
+            },
+          },
+        },
       },
     },
     [specs.monk.windwalker] = {
@@ -2536,8 +2569,8 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           200, -- Hit
-          140, -- Crit
-          120, -- Haste
+          130, -- Crit
+          150, -- Haste
           180, -- Expertise
           100  -- Mastery
         },
@@ -2550,8 +2583,8 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           190, -- Hit
-          150, -- Crit
-          130, -- Haste
+          120, -- Crit
+          140, -- Haste
           170, -- Expertise
           90   -- Mastery
         },
@@ -2564,8 +2597,8 @@ local presets = {
           0,   -- Dodge
           0,   -- Parry
           180, -- Hit
-          160, -- Crit
-          140, -- Haste
+          110, -- Crit
+          130, -- Haste
           160, -- Expertise
           80   -- Mastery
         },
