@@ -221,6 +221,7 @@ function ReforgeLite:GetNeededExpertiseHard ()
     end
   end
 end
+
 function ReforgeLite:GetSpellHasteBonus()
     local hastePercent = 0
     if GetCombatRatingBonus and CR_HASTE_SPELL then
@@ -235,6 +236,7 @@ function ReforgeLite:GetSpellHasteBonus()
     end
     return 1 + (hastePercent / 100)
 end
+
 function ReforgeLite:GetRangedHasteBonus()
     local hastePercent = 0
     if GetCombatRatingBonus and CR_HASTE_RANGED then
@@ -248,6 +250,19 @@ function ReforgeLite:GetRangedHasteBonus()
         hastePercent = hasteRating / hastePerPoint
     end
     return 1 + (hastePercent / 100) 
+end
+
+function ReforgeLite:GetHasteBonuses()
+  return self:GetRangedHasteBonus(), self:GetSpellHasteBonus()
+end
+
+function ReforgeLite:CalcHasteWithBonus(haste, hasteBonus)
+  return ((hasteBonus - 1) * 100) + haste * hasteBonus
+end
+
+function ReforgeLite:CalcHasteWithBonuses(haste)
+  local rangedBonus, spellBonus = self:GetHasteBonuses()
+  return self:CalcHasteWithBonus(haste, meleeBonus), self:CalcHasteWithBonus(haste, rangedBonus), self:CalcHasteWithBonus(haste, spellBonus)
 end
 
 local function CreateIconMarkup(icon)
