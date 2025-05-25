@@ -252,8 +252,21 @@ function ReforgeLite:GetRangedHasteBonus()
     return 1 + (hastePercent / 100) 
 end
 
+function ReforgeLite:GetMeleeHasteBonus()
+  local hastePercent = 0
+  if GetCombatRatingBonus and CR_HASTE_MELEE then
+    hastePercent = GetCombatRatingBonus(CR_HASTE_MELEE) or 0
+  else
+    local hasteRating = GetCombatRating and GetCombatRating(CR_HASTE_MELEE) or 0
+    local level = UnitLevel("player")
+    local hastePerPoint = ReforgeLiteScalingTable[ReforgeLite.STATS.HASTE][level] or 1
+    hastePercent = hasteRating / hastePerPoint
+  end
+  return 1 + (hastePercent / 100)
+end
+
 function ReforgeLite:GetHasteBonuses()
-  return self:GetRangedHasteBonus(), self:GetSpellHasteBonus()
+  return self:GetMeleeHasteBonus(), self:GetRangedHasteBonus(), self:GetSpellHasteBonus()
 end
 
 function ReforgeLite:CalcHasteWithBonus(haste, hasteBonus)
@@ -261,7 +274,7 @@ function ReforgeLite:CalcHasteWithBonus(haste, hasteBonus)
 end
 
 function ReforgeLite:CalcHasteWithBonuses(haste)
-  local rangedBonus, spellBonus = self:GetHasteBonuses()
+  local meleeBonus, rangedBonus, spellBonus = self:GetHasteBonuses()
   return self:CalcHasteWithBonus(haste, meleeBonus), self:CalcHasteWithBonus(haste, rangedBonus), self:CalcHasteWithBonus(haste, spellBonus)
 end
 
