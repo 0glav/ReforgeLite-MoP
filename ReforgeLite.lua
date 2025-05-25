@@ -32,13 +32,9 @@ local DefaultDB = {
     methodWindowX = false,
     methodWindowY = false,
     openOnReforge = true,
-    updateTooltip = true,
     speed = addonTable.MAX_LOOPS * 0.8,
     activeWindowTitle = {0.1, 0.1, 0.1, 1},
     inactiveWindowTitle = {0.2, 0.2, 0.2, 1},
-    highlightTooltip = true,
-    highlightSourceStatColor = {1, 0.501, 0.501,1},
-    highlightDestStatColor = {0, 1, 0.74,1},
     specProfiles = false,
   },
   char = {
@@ -524,6 +520,7 @@ function ReforgeLite:SetAnchor (frame_, point_, rel_, relPoint_, offsX, offsY)
   end
   frame_.anchor = {point = point_, rel = rel_, relPoint = relPoint_, x = offsX, y = offsY}
 end
+
 function ReforgeLite:GetFrameY (frame)
   local cur = frame
   local offs = 0
@@ -1377,18 +1374,8 @@ function ReforgeLite:CreateOptionList ()
     self:ClearStoredMethod ()
   end
 
-  self.enhancedTooltipsCategory = self:CreateCategory (USE_UBERTOOLTIPS)
-  self:SetAnchor (self.enhancedTooltipsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
-  self.enhancedTooltips = GUI:CreateTable (4, 1, nil, 200)
-  self.enhancedTooltipsCategory:AddFrame (self.enhancedTooltips)
-  self:SetAnchor (self.enhancedTooltips, "TOPLEFT", self.enhancedTooltipsCategory, "BOTTOMLEFT", 0, -5)
-  self.enhancedTooltips:SetPoint ("RIGHT", self.content, -10, 0)
-  self.enhancedTooltips:SetRowHeight (ITEM_SIZE + 2)
-
-  self:FillEnhancedTooltips()
-
-  self.settingsCategory = self:CreateCategory (L["Window Settings"])
-  self:SetAnchor (self.settingsCategory, "TOPLEFT", self.enhancedTooltips, "BOTTOMLEFT", 0, -10)
+  self.settingsCategory = self:CreateCategory(L["Window Settings"])
+  self:SetAnchor(self.settingsCategory, "TOPLEFT", self.storedClear, "BOTTOMLEFT", 0, -10)
   self.settings = GUI:CreateTable (5, 1, nil, 200)
   self.settingsCategory:AddFrame (self.settings)
   self:SetAnchor (self.settings, "TOPLEFT", self.settingsCategory, "BOTTOMLEFT", 0, -5)
@@ -1659,14 +1646,8 @@ function ReforgeLite:SearchTooltipForReforgeID(tip)
         if statValue then
           if not existingStats[statInfo.name] then
             destStat = statId
-            if self.db.highlightTooltip then
-              region:SetTextColor(unpack(self.db.highlightDestStatColor))
-            end
           elseif existingStats[statInfo.name] - tonumber(statValue) > 0 then
             srcStat = statId
-            if self.db.highlightTooltip then
-              region:SetTextColor(unpack(self.db.highlightSourceStatColor))
-            end
           end
         end
       end
@@ -2185,41 +2166,6 @@ function ReforgeLite:DoReforgeUpdate()
   self:StopReforging()
 end
 
---------------------------------------------------------------------------
-
-function ReforgeLite:OnTooltipSetItem (tip)
-  if not self.db.updateTooltip and not self.db.highlightTooltip then return end
-  local _, item = tip:GetItem()
-  if not item then return end
-  for _, region in pairs({tip:GetRegions()}) do
-    if region:GetObjectType() == "FontString" and region:GetText() == REFORGED then
-      local reforgeId = self:SearchTooltipForReforgeID(tip)
-      if not reforgeId or reforgeId == UNFORGE_INDEX or not self.db.updateTooltip then return end
-      local srcId, destId = unpack(reforgeTable[reforgeId])
-      region:SetText(("%s (%s > %s)"):format(REFORGED, self.itemStats[srcId].long, self.itemStats[destId].long))
-      return
-    end
-  end
-end
-
-function ReforgeLite:SetUpHooks ()
-  local tooltips = {
-    GameTooltip,
-    ShoppingTooltip1,
-    ShoppingTooltip2,
-    ItemRefTooltip,
-    ItemRefShoppingTooltip1,
-    ItemRefShoppingTooltip2,
-  }
-  for _, tooltip in ipairs(tooltips) do
-    if tooltip then
-      tooltip:HookScript("OnTooltipSetItem", function(tip) self:OnTooltipSetItem(tip) end)
-    end
-  end
-end
-
---------------------------------------------------------------------------
-
 function ReforgeLite:FORGE_MASTER_ITEM_CHANGED()
   self:ContinueReforge()
 end
@@ -2317,7 +2263,6 @@ function ReforgeLite:ADDON_LOADED (addon)
 
   self.s2hFactor = 0
 
-  self:SetUpHooks()
   self:RegisterEvent("FORGE_MASTER_OPENED")
   self:RegisterEvent("FORGE_MASTER_CLOSED")
   self:RegisterEvent("PLAYER_REGEN_DISABLED")
