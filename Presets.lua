@@ -2379,7 +2379,7 @@ local presets = {
       [RAID] = {
         targetLevel = 3,
         weights = {
-          40,  -- Spirit
+          0,  -- Spirit
           100, -- Dodge
           100, -- Parry
           150, -- Hit
@@ -2393,7 +2393,7 @@ local presets = {
       [LFG_TYPE_DUNGEON] = {
         targetLevel = 2,
         weights = {
-          30,  -- Spirit
+          0,  -- Spirit
           90,  -- Dodge
           90,  -- Parry
           140, -- Hit
@@ -2407,7 +2407,7 @@ local presets = {
       [L["Challenge Mode"]] = {
         targetLevel = 2,
         weights = {
-          20,  -- Spirit
+          0,  -- Spirit
           80,  -- Dodge
           80,  -- Parry
           130, -- Hit
